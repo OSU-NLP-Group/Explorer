@@ -11,13 +11,19 @@ Stay tuned for additional code releases and modules for this project.
 
 ### Mind2Web-Live
 
-**Step 1:** Start x server and set the DISPLAY environment variable
+**Step 1:** Installation
+```
+conda create --name myenv python=3.12.5
+pip install -r evals/mind2web_live_eval/requirements.txt
+```
+
+**Step 2:** Start x server and set the DISPLAY environment variable
 ```
 Xvfb :99 -screen 0 1920x1280x16 &
 export DISPLAY=:99
 ```
 
-**Step 2:** Run the evaluation script:
+**Step 3:** Run the evaluation script:
 ```
 python -m evals.mind2web_live_eval.evaluate_model    --index -1     --planning_text_model {qwen2-vl-7b|phi-3.5v}     --toml-path evals/mind2web_live_eval/configs/setting_qwen7b_40k_sample_10epoch_sync_1280_gs_filter.toml     --use-flash-attention --ckpt-path CKPT_PATH --temp 0.01 --log-dir LOG_DIR --viewport-width 1280
 ```
@@ -26,11 +32,17 @@ python -m evals.mind2web_live_eval.evaluate_model    --index -1     --planning_t
 
 To evaluate the performance of the trained model on the Multimodal-Mind2Web benchmark:
 
-**Step 1:** Download the DeBERTa candidate generation scores from the following link:
+**Step 1:** Installation
+```
+conda create --name myenv python=3.12.5
+pip install -r evals/mind2web_orig_eval/requirements.txt
+```
+
+**Step 2:** Download the DeBERTa candidate generation scores from the following link:
 
 [🔗 DeBERTa Score File](https://buckeyemailosu-my.sharepoint.com/:u:/g/personal/deng_595_buckeyemail_osu_edu/EZllMua3lABAhXQnCN7-pr4BIP4YV8xPfbgyP5FXT18wag?e=yXkK8k)
 
-**Step 2:** Run the evaluation script:
+**Step 3:** Run the evaluation script:
 
 ```
 cd evals
