@@ -9,6 +9,19 @@ Stay tuned for additional code releases and modules for this project.
 
 ## 🧪 Evaluation
 
+### Mind2Web-Live
+
+**Step 1:** Start x server and set the DISPLAY environment variable
+```
+Xvfb :99 -screen 0 1920x1280x16 &
+export DISPLAY=:99
+```
+
+**Step 2:** Run the evaluation script:
+```
+python -m evals.mind2web_live_eval.evaluate_model    --index -1     --planning_text_model {qwen2-vl-7b|phi-3.5v}     --toml-path evals/mind2web_live_eval/configs/setting_qwen7b_40k_sample_10epoch_sync_1280_gs_filter.toml     --use-flash-attention --ckpt-path CKPT_PATH --temp 0.01 --log-dir LOG_DIR --viewport-width 1280
+```
+
 ### Multimodal-Mind2Web
 
 To evaluate the performance of the trained model on the Multimodal-Mind2Web benchmark:
