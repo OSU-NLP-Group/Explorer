@@ -359,7 +359,6 @@ class AsyncHTMLEnvironment:
             await self.page.locator(selector).fill(value)
 
             # logger.info('flag 2')
-            # TODO: remove later if required
             if self.args.press_enter_after_fill:
                 logger.info("Pressing Enter after filling the form")
                 await self.page.keyboard.press('Enter')

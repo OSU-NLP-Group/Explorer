@@ -1,6 +1,6 @@
 # Explorer
 
-This is the official codebase for **Explorer: Scaling Exploration-driven Web Trajectory Synthesis for Multimodal Web Agents**, accepted to **ACL 2025 (Findings)**. This project is a collaboration between The Ohio State University and Microsoft Research.
+This is the official codebase for **Explorer: Scaling Exploration-driven Web Trajectory Synthesis for Multimodal Web Agents**[**ACL 2025 (Findings)**]. This project is a collaboration between The Ohio State University and Microsoft Research.
 
 - [🏠Website](https://osu-nlp-group.github.io/Explorer/)
 - [📖Paper](https://arxiv.org/pdf/2502.11357)
@@ -21,6 +21,7 @@ pip install -r evals/mind2web_live_eval/requirements.txt
 ```
 Xvfb :99 -screen 0 1920x1280x16 &
 export DISPLAY=:99
+export OPENAI_API_KEY=xxxxxxxxxxxx
 ```
 
 **Step 3:** Run the evaluation script:
@@ -55,6 +56,34 @@ python -m mind2web_orig_eval.eval \
   --model {qwen-7b|phi-3.5}
 ```
 
+### In-domain evaluation
+
+**Step 1:** Installation
+```
+conda create --name myenv python=3.12.5
+pip install -r evals/in_domain_eval/requirements.txt
+```
+
+**Step 2:** Set necessary env variables (`OPENAI_API_KEY` for evaluating API-based models)
+```
+export OPENAI_API_KEY=xxxxxxxxxxxx
+```
+
+**Step 3:** Run the evaluation script:
+
+```
+python -u -m evals.in_domain_eval.eval --input-file in_domain_test.json --ckpt-path <CKPT_PATH> --use-flash-attention --log-dir <LOG_DIR> --use-spiral
+```
+
+Structure of `in_domain_test.json`:
+```
+[
+ <path to traj dir 1>,
+ <path to traj dir 2>,
+ ...
+ <path to traj dir n>,
+]
+```
 ## Citation
 
 If you find this work useful, please consider starring our repo and citing our paper: 

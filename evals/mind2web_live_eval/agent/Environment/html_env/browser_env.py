@@ -180,11 +180,6 @@ class ScriptBrowserEnv:
     def step(
         self, action
     ) -> tuple[dict[str, Observation], float, bool, bool, dict[str, Any]]:
-        # TODO: revisit this
-        # if not self.reset_finished:
-            # raise RuntimeError("Call reset first before calling step.")
-
-        # print('self.page before = {}'.format(self.page))
 
         success = False
         fail_error = ""
@@ -232,11 +227,6 @@ class ScriptBrowserEnv:
             logging.error(traceback.format_exc())
 
         logging.info("Action executed successfully: {}".format(success))
-        
-        # hard sleep TODO[shuyanzh] suboptimal, may need to check network
-        # TODO: revisit this
-        # if self.sleep_after_execution > 0:
-            # time.sleep(self.sleep_after_execution)
         
         return
 

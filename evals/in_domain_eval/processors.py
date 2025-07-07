@@ -6,7 +6,6 @@ from io import BytesIO, StringIO
 from typing import Any, Optional, TypedDict, Union
 from urllib.parse import urljoin, urlparse
 
-import time
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
@@ -18,8 +17,9 @@ from PIL import Image, ImageDraw, ImageFont
 from playwright.sync_api import CDPSession, Page, ViewportSize
 from playwright.async_api import CDPSession as CDPSessionAsync, Page as PageAsync, ViewportSize as ViewportSizeAsync
 from typing import Any, Dict, TypedDict, Union # dict, list, tuple
-
 import logging
+import traceback
+import time
 
 from .constants import (
     ASCII_CHARSET,
@@ -63,262 +63,6 @@ def png_bytes_to_numpy(png: bytes) -> npt.NDArray[np.uint8]:
     """
     return np.array(Image.open(BytesIO(png)))
 
-def convert_to_corners(box):
-    x_center, y_center, width, height = box
-    x_min = x_center - width / 2
-    y_min = y_center - height / 2
-    return [x_min, y_min, width, height]
-
-def calculate_iou(box1, box2):
-    # Calculate the (x, y) coordinates of the intersection rectangle
-    # [x_left, y_left, w, h]
-    box2[2] -= box2[0]
-    box2[3] -= box2[1]
-
-    x_left = max(box1[0], box2[0])
-    y_top = max(box1[1], box2[1])
-    x_right = min(box1[0] + box1[2], box2[0] + box2[2])
-    y_bottom = min(box1[1] + box1[3], box2[1] + box2[3])
-
-    # If the boxes don't overlap, return 0
-    if x_right < x_left or y_bottom < y_top:
-        return 0.0
-
-    # Calculate the area of the intersection rectangle
-    intersection_area = (x_right - x_left) * (y_bottom - y_top)
-
-    # Calculate the area of both boxes
-    box1_area = box1[2] * box1[3]
-    box2_area = box2[2] * box2[3]
-
-    # Calculate the union area by using the formula: union(A, B) = A + B - intersection(A, B)
-    iou = intersection_area / float(box1_area + box2_area - intersection_area)
-
-    return iou
-
-def find_closest_center_coordinate(box_coordinate, interactive_rects):
-    
-    thresh = 0.9
-    closest_coordinate_idx = None
-    
-    for i, rect in enumerate(interactive_rects):
-        coord = rect[3]
-        
-        iou = calculate_iou(box_coordinate, coord)
-        
-        # print(f"box1:{box_coordinate}, box2:{coord}, IOU: {iou}")
-
-        if iou > thresh:
-            closest_coordinate_idx = i
-            break
-    
-    return closest_coordinate_idx
-
-def remove_extra_eol(text):
-    # Replace EOL symbols
-    text = text.replace('\n', ' ')
-    return re.sub(r'\s{2,}', ' ', text)
-
-
-def get_first_line(s):
-    first_line = s.split('\n')[0]
-    tokens = first_line.split()
-    if len(tokens) > 8:
-        return ' '.join(tokens[:8]) + '...'
-    else:
-        return first_line
-    
-def get_element_description(element, tag_name, role_value, type_value):
-    '''
-         Asynchronously generates a descriptive text for a web element based on its tag type.
-         Handles various HTML elements like 'select', 'input', and 'textarea', extracting attributes and content relevant to accessibility and interaction.
-    '''
-
-    salient_attributes = [
-        "alt",
-        "aria-describedby",
-        "aria-label",
-        "aria-role",
-        "input-checked",
-        # "input-value",
-        "label",
-        "name",
-        "option_selected",
-        "placeholder",
-        "readonly",
-        "text-value",
-        "title",
-        "value",
-    ]
-
-    parent_value = "parent_node: "
-    parent_locator = element.locator('xpath=..')
-    num_parents = parent_locator.count()
-    if num_parents > 0:
-        # only will be zero or one parent node
-        parent_text = (parent_locator.inner_text(timeout=0) or "").strip()
-        if parent_text:
-            parent_value += parent_text
-    parent_value = remove_extra_eol(get_first_line(parent_value)).strip()
-    if parent_value == "parent_node:":
-        parent_value = ""
-    else:
-        parent_value += " "
-
-    if tag_name == "select":
-        text1 = "Selected Options: "
-        text2 = ""
-        text3 = " - Options: "
-        text4 = ""
-
-        text2 = element.evaluate(
-            "select => select.options[select.selectedIndex].textContent", timeout=0
-        )
-
-        if text2:
-            options = element.evaluate("select => Array.from(select.options).map(option => option.text)",
-                                             timeout=0)
-            text4 = " | ".join(options)
-
-            if not text4:
-                text4 = element.text_content(timeout=0)
-                if not text4:
-                    text4 = element.inner_text(timeout=0)
-
-            return parent_value+text1 + remove_extra_eol(text2.strip()) + text3 + text4
-
-    input_value = ""
-
-    none_input_type = ["submit", "reset", "checkbox", "radio", "button", "file"]
-
-    if tag_name == "input" or tag_name == "textarea":
-        if role_value not in none_input_type and type_value not in none_input_type:
-            text1 = "input value="
-            text2 = element.input_value(timeout=0)
-            if text2:
-                input_value = text1 + "\"" + text2 + "\"" + " "
-
-    text_content = element.text_content(timeout=0)
-    text = (text_content or '').strip()
-    if text:
-        text = remove_extra_eol(text)
-        if len(text) > 80:
-            text_content_in = element.inner_text(timeout=0)
-            text_in = (text_content_in or '').strip()
-            if text_in:
-                return input_value + remove_extra_eol(text_in)
-        else:
-            return input_value + text
-
-    # get salient_attributes
-    text1 = ""
-    for attr in salient_attributes:
-        attribute_value = element.get_attribute(attr, timeout=0)
-        if attribute_value:
-            text1 += f"{attr}=" + "\"" + attribute_value.strip() + "\"" + " "
-
-    text = (parent_value + text1).strip()
-    if text:
-        return input_value + remove_extra_eol(text.strip())
-
-
-    # try to get from the first child node
-    first_child_locator = element.locator('xpath=./child::*[1]')
-
-    num_childs = first_child_locator.count()
-    if num_childs>0:
-        for attr in salient_attributes:
-            attribute_value = first_child_locator.get_attribute(attr, timeout=0)
-            if attribute_value:
-                text1 += f"{attr}=" + "\"" + attribute_value.strip() + "\"" + " "
-
-        text = (parent_value + text1).strip()
-        if text:
-            return input_value + remove_extra_eol(text.strip())
-
-    return None
-
-
-def get_element_data(element, tag_name):
-    tag_name_list = ['a', 'button',
-                     'input',
-                     'select', 'textarea', 'adc-tab']
-
-    # await aprint(element,tag_name)
-    if element.is_hidden(timeout=0) or element.is_disabled(timeout=0):
-        return None
-
-    tag_head = ""
-    real_tag_name = ""
-    if tag_name in tag_name_list:
-        tag_head = tag_name
-        real_tag_name = tag_name
-    else:
-        real_tag_name = element.evaluate("element => element.tagName.toLowerCase()", timeout=0)
-        if real_tag_name in tag_name_list:
-            # already detected
-            return None
-        else:
-            tag_head = real_tag_name
-
-    role_value = element.get_attribute('role', timeout=0)
-    type_value = element.get_attribute('type', timeout=0)
-    # await aprint("start to get element description",element,tag_name )
-    description = get_element_description(element, real_tag_name, role_value, type_value)
-    if not description:
-        return None
-
-    rect = element.bounding_box() or {'x': 0, 'y': 0, 'width': 0, 'height': 0}
-
-    if role_value:
-        tag_head += " role=" + "\"" + role_value + "\""
-    if type_value:
-        tag_head += " type=" + "\"" + type_value + "\""
-
-    box_model = [rect['x'], rect['y'], rect['x'] + rect['width'], rect['y'] + rect['height']]
-    center_point = ((box_model[0] + box_model[2]) / 2, (box_model[1] + box_model[3]) / 2)
-    selector = element
-
-
-    return [center_point, description, tag_head, box_model, selector, real_tag_name]
-
-def get_interactive_elements_with_playwright(page):
-    interactive_elements_selectors = [
-        'a', 'button',
-        'input',
-        'select', 'textarea', 'adc-tab', '[role="button"]', '[role="radio"]', '[role="option"]', '[role="combobox"]',
-        '[role="textbox"]',
-        '[role="listbox"]', '[role="menu"]',
-        '[type="button"]', '[type="radio"]', '[type="combobox"]', '[type="textbox"]', '[type="listbox"]',
-        '[type="menu"]',
-        '[tabindex]:not([tabindex="-1"])', '[contenteditable]:not([contenteditable="false"])',
-        '[onclick]', '[onfocus]', '[onkeydown]', '[onkeypress]', '[onkeyup]', "[checkbox]",
-        '[aria-disabled="false"],[data-link]'
-    ]
-
-    tasks = []
-
-    seen_elements = set()
-    for selector in interactive_elements_selectors:
-        locator = page.locator(selector)
-        element_count = locator.count()
-        for index in range(element_count):
-            element = locator.nth(index)
-            tag_name = selector.replace(":not([tabindex=\"-1\"])", "")
-            tag_name = tag_name.replace(":not([contenteditable=\"false\"])", "")
-            task = get_element_data(element, tag_name)
-
-            tasks.append(task)
-
-    interactive_elements = []
-    for i in tasks:
-        if i:
-            if i[0] in seen_elements:
-                continue
-            else:
-                seen_elements.add(i[0])
-                interactive_elements.append(i)
-    return interactive_elements
 
 class BrowserConfig(TypedDict):
     win_upper_bound: float
@@ -730,15 +474,13 @@ class ImageObservationProcessor(ObservationProcessor):
                 screenshot = png_bytes_to_numpy(page.screenshot())
             return screenshot, ""
 
-    def process_new(self, page: Page, client: CDPSession, intent, image_path=None, som_model=None, caption_model_processor=None) -> npt.NDArray[np.uint8]:
+    def process_new(self, page: Page, client: CDPSession, intent) -> npt.NDArray[np.uint8]:
         import os
-        from .set_of_mark import add_set_of_mark
+        from in_domain_eval.set_of_mark import add_set_of_mark
         try:
             page.wait_for_load_state("load", timeout=10000)
             # import time
-
-            time.sleep(self.args.process_sleep)
-            # time.sleep(10)
+            time.sleep(5)
             # page.wait_for_load_state("networkidle", timeout=5000)
 
             try:
@@ -748,23 +490,26 @@ class ImageObservationProcessor(ObservationProcessor):
                 browser_info = self.fetch_browser_info(page, client)
         except:
             logging.info('page not fully loaded.')
+            logging.info(traceback.format_exc())
             browser_info = self.fetch_browser_info(page, client)
 
         self.browser_config = browser_info["config"]
 
         # try:
         # with open("C:\\Users\\t-vpahuja\\OneDrive - Microsoft\\Documents\\AgentInstruct\\src\\webagent\\page_script.js", "rt") as fh:
-        with open(os.path.join("evals", "mind2web_live_eval", "agent", "Environment", "html_env", "page_script.js"), "rt") as fh:
+        with open(os.path.join("web_traj_gen", "page_script.js"), "rt") as fh:
             page.evaluate(fh.read())
         rects = page.evaluate("MultimodalWebSurfer.getInteractiveRects();")
+
+        # print(rects)
+        
+        
 
         id2center = {}
 
         for box_id in rects:
-        # for box_id in ['84']:
             box = rects[box_id]
             id2center[box_id] = (box["rects"][0]["x"] + box["rects"][0]["width"]/2, box["rects"][0]["y"] + box["rects"][0]["height"]/2, box["rects"][0]["width"], box["rects"][0]["height"])
-
         self.som_id_info = id2center
         self.meta_data["obs_nodes_info"] = id2center
 
@@ -778,13 +523,7 @@ class ImageObservationProcessor(ObservationProcessor):
         # create a new accessibility tree
         acc_tree = []
 
-        if self.args.use_complete_acc_tree:
-            acc_tree_rects = rects
-        else:
-            acc_tree_rects = visible_rects
-
-        for box_id in acc_tree_rects:
-        # for box_id in rects:
+        for box_id in visible_rects:
             box = rects[box_id]
             alt_text = box["aria-name"].replace("\n", " ").replace("\t", " ")
             tag_name = box["tag_name"].upper()
@@ -806,8 +545,8 @@ class ImageObservationProcessor(ObservationProcessor):
         som_screenshot.save(som_screenshot_bytes, format="PNG")
         som_screenshot_bytes = som_screenshot_bytes.getvalue()
         '''
-        # som_screenshot = np.array(som_screenshot)
-        return som_screenshot, acc_tree, visible_rects
+        som_screenshot = np.array(som_screenshot)
+        return som_screenshot, acc_tree
 
     async def process_new_async(self, page: PageAsync, client: CDPSessionAsync, intent) -> npt.NDArray[np.uint8]:
         import os
@@ -830,7 +569,7 @@ class ImageObservationProcessor(ObservationProcessor):
             await page.evaluate(fh.read())
         rects = await page.evaluate("MultimodalWebSurfer.getInteractiveRects();")
 
-        print(rects)
+        # print(rects)
         
         
 
@@ -892,6 +631,7 @@ class ImageObservationProcessor(ObservationProcessor):
         # page: Page,
         # client: CDPSession,
     ) -> BrowserInfo:
+        # print('flag 1')
 
         # extract domtree
         tree = client.send(
@@ -902,6 +642,8 @@ class ImageObservationProcessor(ObservationProcessor):
                 "includePaintOrder": True,
             },
         )
+
+        # print('flag 2')
 
         # logging.info('tree = {}'.format(tree))
         # await tree()
@@ -915,6 +657,8 @@ class ImageObservationProcessor(ObservationProcessor):
         # add union bound placeholder
         tree["documents"][0]["layout"]["unionBounds"] = [None for _ in bounds]
 
+        # print('flag 3')
+
         # extract browser info
         win_upper_bound = page.evaluate("window.pageYOffset")
         win_left_bound = page.evaluate("window.pageXOffset")
@@ -924,6 +668,8 @@ class ImageObservationProcessor(ObservationProcessor):
         win_lower_bound = win_upper_bound + win_height
         device_pixel_ratio = page.evaluate("window.devicePixelRatio")
         assert device_pixel_ratio == 1.0, "devicePixelRatio is not 1.0"
+
+        # print('flag 4')
 
         config: BrowserConfig = {
             "win_upper_bound": win_upper_bound,
@@ -948,6 +694,7 @@ class ImageObservationProcessor(ObservationProcessor):
         # page: Page,
         # client: CDPSession,
     ) -> BrowserInfo:
+        # print('flag 1')
 
         # extract domtree
 
@@ -978,6 +725,8 @@ class ImageObservationProcessor(ObservationProcessor):
         #     return getDomTree(document.documentElement);
         # }""")
 
+        # print('flag 2')
+
         # logging.info('tree = {}'.format(tree))
         # await tree()
         
@@ -990,6 +739,8 @@ class ImageObservationProcessor(ObservationProcessor):
         # add union bound placeholder
         tree["documents"][0]["layout"]["unionBounds"] = [None for _ in bounds]
 
+        # print('flag 3')
+
         # extract browser info
         win_upper_bound = await page.evaluate("window.pageYOffset")
         win_left_bound = await page.evaluate("window.pageXOffset")
@@ -999,6 +750,8 @@ class ImageObservationProcessor(ObservationProcessor):
         win_lower_bound = win_upper_bound + win_height
         device_pixel_ratio = await page.evaluate("window.devicePixelRatio")
         assert device_pixel_ratio == 1.0, "devicePixelRatio is not 1.0"
+
+        # print('flag 4')
 
         config: BrowserConfig = {
             "win_upper_bound": win_upper_bound,

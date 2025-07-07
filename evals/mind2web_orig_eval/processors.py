@@ -247,7 +247,6 @@ class ImageObservationProcessor(ObservationProcessor):
             if (plot_ids is not None) and (row["ID"] not in plot_ids):
                 continue
             
-            # add intent filtering -TODO yadong
             if intent is not None:
                 intent_match = any([inte in str(row["TextContent"]) for inte in intent.split(" ")])
                 if not intent_match:

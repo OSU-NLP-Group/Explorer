@@ -219,7 +219,6 @@ class HTMLTree:
         if tag_name == "unknown":
             tag_name = element["tagName"]
             tag_idx = element["nodeId"]
-            # TODO Add more mappings
             if tag_name in MapTagNameList:
                 parent_element = self.pruningTreeNode[element["parentId"]]
                 return self.get_tag_name(parent_element)
@@ -311,7 +310,6 @@ class HTMLTree:
 
     @staticmethod
     def process_element_contents(element: ElementNode) -> str:
-        # TODO Add appropriate interactive element information, currently only processing interactive elements with text attributes
         html_text = ActiveElements.get_element_value(element)
         if html_text is None:
             return ""

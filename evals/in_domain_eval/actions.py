@@ -10,7 +10,6 @@ import string
 from enum import IntEnum
 from itertools import chain
 from typing import Any, TypedDict, Union, cast
-import os
 
 import logging
 import numpy as np
@@ -23,35 +22,7 @@ from playwright.async_api import BrowserContext as ABrowserContext
 from playwright.async_api import Locator as ALocator
 from playwright.async_api import Page as APage
 from playwright.sync_api import BrowserContext, Locator, Page
-from difflib import SequenceMatcher
-import requests
 
-def google_search(query, api_key, cse_id, num_results=10):
-    """
-    Perform a Google search using the Custom Search JSON API.
-    
-    :param query: Search query string
-    :param api_key: API key from Google Cloud
-    :param cse_id: Custom Search Engine ID
-    :param num_results: Number of results to retrieve (default: 10)
-    :return: List of search results
-    """
-    url = "https://www.googleapis.com/customsearch/v1"
-    params = {
-        "q": query,          # Search query
-        "key": api_key,      # API key
-        "cx": cse_id,        # Custom Search Engine ID
-        "num": num_results   # Number of results to fetch
-    }
-
-    response = requests.get(url, params=params)
-    if response.status_code == 200:
-        data = response.json()
-        return data.get("items", [])  # Return search results
-    else:
-        logging.info(f"Error: {response.status_code} - {response.text}")
-        return None
-    
 from .constants import (
     ASCII_CHARSET,
     FREQ_UNICODE_CHARSET,
@@ -79,14 +50,6 @@ class ParsedPlaywrightCode(TypedDict):
     arguments: list[str]
     keywords: dict[str, Any]
 
-class ActionExecutionError(Exception):
-    """Custom action execution exception class"""
-
-    def __init__(self, action_type, message, selector=None):
-        self.action_type = action_type
-        self.message = message
-        self.selector = selector
-        super().__init__(message)
 
 # from .processors import (
 #     ObservationProcessor,
@@ -363,8 +326,6 @@ class ActionTypes(IntEnum):
 
     STOP = 17
     CLEAR = 18
-
-    SELECT = 19
 
     def __str__(self) -> str:
         return f"ACTION_TYPES.{self.name}"
@@ -800,30 +761,6 @@ def create_type_action(
     )
     return action
 
-@beartype
-def create_select_action(
-    text: str,
-    element_id: str = "",
-    element_role: RolesType = "link",
-    element_name: str = "",
-    pw_code: str = "",
-    nth: int = 0,
-) -> Action:
-    action = create_none_action()
-    action.update(
-        {
-            "action_type": ActionTypes.SELECT,
-            "element_id": element_id,
-            "element_role": _role2id[element_role],
-            "element_name": element_name,
-            "nth": nth,
-            "text": _keys2ids(text),
-            "pw_code": pw_code,
-            "text_nl": text,
-            "fill_text": text,
-        }
-    )
-    return action
 
 @beartype
 def create_check_action(pw_code: str) -> Action:
@@ -1267,99 +1204,16 @@ async def aexecute_playwright_check(
     # perform the action
     await locator.check()
 
-def execute_select_option(action, page, id2selector):
-    logging.info(f"action: {action}")
 
-    
-    # print(tree.element_tag_value)
-    # import pdb; pdb.set_trace()
-    selector = id2selector[action["element_id"]]
-    value = action["text_nl"]
-
-    best_option = [-1, "", -1]
-    for i in range(selector.locator("option").count()):
-        option = selector.locator("option").nth(i).inner_text()
-        similarity = SequenceMatcher(None, option, value).ratio()
-        if similarity > best_option[2]:
-            best_option = [i, option, similarity]
-    
-    selector.select_option(index=best_option[0], timeout=10000)
-    
-    """
-    try:
-        logging.info(f"tree.element_tag_value: {tree.element_tag_value}")
-        label, element_id = tree.get_tag_name(
-            tree.elementNodes[tree.element_tag_value['option'][action["text_nl"]]])
-        action.update({"element_id": element_id,
-                        "element_name": label})
-        selector, xpath = tree.get_selector_and_xpath(
-            action["element_id"])
-    except Exception as e:
-        logging.error(
-            f"selector:{selector},label_name:{label},element_id: {element_id},error ({e}) in select_option action.")
-    try:
-        selector = rf"{selector}"
-        optgroup_values = page.evaluate(f'''(selector) => {{
-            var values = [];
-            var selectElement = document.querySelector(selector);
-            var options = selectElement.querySelectorAll('option');
-            for (var option of options) {{
-                values.push(option.innerText);
-            }}
-            var optgroups = selectElement.querySelectorAll('optgroup');
-            for (var optgroup of optgroups) {{
-                var options = optgroup.querySelectorAll('option');
-                for (var option of options) {{
-                    values.push(option.innerText);
-                }}   
-            }}
-            return values;
-        }}''', selector)
-        best_option = [-1, "", -1]
-        for i, option in enumerate(optgroup_values):
-            similarity = SequenceMatcher(
-                None, option, action['fill_text']).ratio()
-            if similarity > best_option[2]:
-                best_option = [i, option, similarity]
-        page.evaluate(f'''(selector) => {{
-            var selectElement = document.querySelector(selector);
-            var options = selectElement.querySelectorAll('option');
-            for (var option of options) {{
-                if (option.innerText === "{best_option[1]}") {{
-                    option.selected = true;
-                    selectElement.dispatchEvent(new Event('change'));
-                    return;
-                }}
-            }}
-            var optgroups = selectElement.querySelectorAll('optgroup');
-            for (var optgroup of optgroups) {{
-                var options = optgroup.querySelectorAll('option');
-                for (var option of options) {{
-                    if (option.innerText === "{best_option[1]}") {{
-                        option.selected = true;
-                        selectElement.dispatchEvent(new Event('change'));
-                        return;
-                    }}
-                }}
-            }}
-        }}''', selector)
-        page.wait_for_timeout(2000)
-        html_content = page.content()
-    except Exception as e:
-        raise e
-    """
 @beartype
 def execute_action(
     action: Action,
     page: Page,
     browser_ctx: BrowserContext,
     obseration_processor: ObservationProcessor,
-    # tree: HTMLTree,
 ) -> Page:
     """Execute the action on the ChromeDriver."""
     action_type = action["action_type"]
-
-    # print('tree = ', tree)
 
     match action_type:
         case ActionTypes.NONE:
@@ -1480,14 +1334,6 @@ def execute_action(
             else:
                 page = browser_ctx.new_page()
 
-        case ActionTypes.SELECT:
-            # raise NotImplementedError
-            try:
-                execute_select_option(action, page, obseration_processor.id2selector)
-            except Exception as e:
-                error_message = f"Failed to execute select_option [{action['element_id']},{action['fill_text']}] action. An error({e}) occur."
-                raise ActionExecutionError(
-                    action['action_type'], error_message) from e
         case ActionTypes.SELECT_OPTION:
             if action["pw_code"]:
                 parsed_code = parse_playwright_code(action["pw_code"])
@@ -1810,7 +1656,7 @@ def create_playwright_action(playwright_code: str) -> Action:
 
 
 @beartype
-def create_id_based_action(action_str: str, use_google_api: bool) -> Action:
+def create_id_based_action(action_str: str) -> Action:
     """Main function to return individual id based action"""
     action_str = action_str.strip()
     if "[" in action_str:
@@ -1827,19 +1673,7 @@ def create_id_based_action(action_str: str, use_google_api: bool) -> Action:
             if not match:
                 raise ActionParsingError(f"Invalid search_google action {action_str}")
             url = match.group(1)
-            if not use_google_api:
-                url = "https://www.google.com/search?q={}&filter=0".format(url)
-            else:
-                API_KEY = os.getenv("API_KEY")
-                CSE_ID = os.getenv("CSE_ID")
-
-                logging.info('API_KEY = {}'.format(API_KEY))
-                logging.info('CSE_ID = {}'.format(CSE_ID))
-
-                # Perform a search
-                results = google_search(url, API_KEY, CSE_ID, num_results=5)
-                logging.info('results: {}'.format(results))
-                url = results[0]['link']
+            url = "https://www.google.com/search?q={}".format(url)
             
             return create_goto_url_action(url=url)
         case "click":
@@ -1878,15 +1712,6 @@ def create_id_based_action(action_str: str, use_google_api: bool) -> Action:
             if enter_flag == "1":
                 text += "\n"
             return create_type_action(text=text, element_id=element_id)
-        case "select":
-            match = re.search(r"select ?\[(\d+)\] ?\[(.+)\]", action_str)
-
-            if not match:
-                raise ActionParsingError(f"Invalid select action {action_str}")
-            element_id = match.group(1)
-            text = match.group(2)
-            return create_select_action(text=text, element_id=element_id)
-        
         case "press":
             match = re.search(r"press ?\[(.+)\]", action_str)
             if not match:
