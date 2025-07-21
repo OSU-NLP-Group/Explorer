@@ -11,7 +11,11 @@ for task in $(cat evals/miniwob/available_tasks.txt)
 do
     echo "Task ID: $id, task: $task"
     mkdir -p LOG_DIR/$task
+    # phi-3.5
     python -u -m evals.miniwob.main_slm --env $task --llm chatgpt --num-episodes 4 --erci 1 --irci 3 --sgrounding --use-dynamic-seed --output-dir LOG_DIR/$task --add-class-subset --ckpt-path <CKPT_PATH>
+
+    # qwen2-vl-7b
+    python -u -m evals.miniwob.main_slm_qwen --env $task --llm chatgpt --num-episodes 4 --erci 1 --irci 3 --sgrounding --use-dynamic-seed --output-dir LOG_DIR/$task --add-class-subset --ckpt-path <CKPT_PATH>
 
     id=$((id+1))  # Increment task ID counter
 done

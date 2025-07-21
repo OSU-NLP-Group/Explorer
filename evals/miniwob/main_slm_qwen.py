@@ -3,7 +3,7 @@ import random
 
 import computergym
 import gym
-from .slm_agent import SLMAgent
+from .slm_agent_qwen import SLMAgent
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -52,17 +52,7 @@ SYSTEM_MESSAGE_NEW = '''You are an expert at completing instructions on Webpage 
 {"action": "select", "action_natural_language": str, "idx": <element_idx>, "value": <the option to select>}
 Your final answer must be in the above format.
 '''
-# USER_MESSAGE = '''Here is the screenshot image: <|image_1|>\n
-#       The instruction is to {}. 
-#       History actions:
-#       {}\n\n
-#       Here is the screen information:
-#       {}\n\n
-#       Think about what you need to do with current screen, and output the action in the required format in the end. 
-      
-#       **Important Notes**:
-# - Your action should not be the same as last step's action. The last action is "{}"
-# '''
+
 USER_MESSAGE = '''Here is the screenshot image: <|image_1|>\n
       The instruction is to {}. 
       History actions:
@@ -89,26 +79,19 @@ class WebTrajDataCollator:
         # else:
         #     last_action = ''
 
-        prompt_message = {
-            'role': 'user',
-            'content': USER_MESSAGE.format(overall_task, action_history, acc_tree, last_action),
-        }
+        user_prompt = USER_MESSAGE.format(overall_task, action_history, acc_tree)
         image = Image.fromarray(som_screenshot)
 
-        prompt = self.processor.tokenizer.apply_chat_template(
-            [system_message, prompt_message], tokenize=False, add_generation_prompt=True
-        )
-        # print(prompt)
+        messages_new = []
+        messages_new.append(system_message)
 
-        batch = self.processor(prompt, [image], return_tensors="pt")
-        input_ids = [batch['input_ids']]
-
-        pixel_values = batch['pixel_values'].to('cuda')
-        image_sizes = batch['image_sizes'].to('cuda')
-        input_ids = torch.cat(input_ids, dim=1).to('cuda')
-
-        batch = {'input_ids': input_ids, 'pixel_values': pixel_values, 'image_sizes': image_sizes}
-
+        user_prompt_0, user_prompt_1 = user_prompt.split('<|image_1|>')
+        messages_new.append({"role": "user", "content": [{"type": "text", "text": user_prompt_0}, {"type": "image"}, {"type": "text", "text": user_prompt_1}]})
+    
+        prompt = self.processor.apply_chat_template(messages_new, add_generation_prompt=True)
+        batch = self.processor(text=prompt, images=[image], padding=True, return_tensors="pt")
+        batch.to('cuda')
+        
         return batch
 
 def parse_opt():
@@ -178,7 +161,6 @@ def perform_instruction(driver, instruction):
         chain.move_to_element(element).click().perform()
     elif inst_type == "press":
         key_type = instruction[1]
-        # TODO: press special key
         if key_type == "enter":
             chain = ActionChains(driver)
             chain.send_keys("\n")
@@ -294,6 +276,7 @@ def execute_action(response, rects, action_history, action_history_complete, slm
             traceback.format_exc()
 
     else:
+        # return NotImplementedError
         instruction = ''
         rewards = [0]
         dones = [False]
@@ -304,7 +287,6 @@ def execute_action(response, rects, action_history, action_history_complete, slm
         return None, None, browser_env, env, states, rects, rewards, dones
 
     try:
-        # if response['action'] in ['type', 'select']:
         if response['action'] in ['type']:
             assert 'value' in response
         if response['action'] in ['click', 'type']:
@@ -358,7 +340,7 @@ def miniwob(opt):
     browser_env = ScriptBrowserEnv(opt, browser_type='chrome', viewport_size=viewport_size, image_processor=image_processor)
     browser_env.setup('https://www.google.com', None)
 
-    model_name_or_path = 'microsoft/Phi-3.5-vision-instruct'
+    model_name_or_path = "Qwen/Qwen2-VL-7B-Instruct"
     processor = AutoProcessor.from_pretrained(model_name_or_path, trust_remote_code=True)
     data_collator = WebTrajDataCollator(processor)
     
@@ -384,7 +366,7 @@ def miniwob(opt):
         html_state = get_html_state(opt, states)
         goal = states[0].utterance
 
-        # print(html_state)
+        print(html_state)
 
         try:
             browser_env.page.set_content(html_state)
@@ -440,7 +422,7 @@ def miniwob(opt):
                 # decode the output
                 # remove input tokens 
                 generate_ids = generate_ids[:, batch_data['input_ids'].shape[1]:]
-                raw_response = processor.batch_decode(generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]
+                raw_response = processor.batch_decode(generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=True)[0]
                 
                 print(f'raw_response = {raw_response}')
             
@@ -454,15 +436,13 @@ def miniwob(opt):
                     fixed_str = re.sub(r":\s*'([^']*)'", r': "\1"', fixed_str)  # String values
                     response_dict_strs_new.append(fixed_str)
 
-                # response_dict_strs = [d.replace("'", '"') for d in response_dict_strs]
-
                 print(f'response_dict_strs = {response_dict_strs_new}')
 
-                # import pdb; pdb.set_trace()
                 try:
                     response_dicts = [json.loads(d) for d in response_dict_strs_new]
                 except:
                     response_dicts = [json.loads(d.replace('"', '').replace("'", '"')) for d in response_dict_strs]
+
 
                 if len(response_dicts)==0:
                     step_id += 1
@@ -474,8 +454,6 @@ def miniwob(opt):
                     response_dicts = [response_dict.copy() for _ in range(len(response_dicts[0]['idx']))]
 
                     for i, response_dict in enumerate(response_dicts):
-                        # print(response_dicts[0]['idx'])
-                        # import pdb; pdb.set_trace()
                         response_dict['idx'] = response_dict['idx'][i]
 
                     print('response_dicts = {}'.format(response_dicts))
@@ -520,14 +498,6 @@ def miniwob(opt):
                         if match:
                             first_dict_str = match.group(1)
                             response = ast.literal_eval(first_dict_str)
-                
-                # logging.info('response = {}'.format(response))
-                # print(f'states = {states}')
-
-                # if single dict in response, execute once. o/w execute multiple times
-                # if len(action_history)>1 and action_history[-2] == action_history[-1]:
-                    # response = None
-                # print(f'response = {response}')
             
                 # get action type and id from raw_response
                 if response:
@@ -576,10 +546,8 @@ def miniwob(opt):
 
                             states, rewards, dones, _ = env.step([miniwob_action])
                         except:
-                            # print("Invalid action or rci action fail")
                             rewards = [0]
                             dones = [False]
-                            # break
                             traceback.format_exc()
                         
                         try:
@@ -587,7 +555,6 @@ def miniwob(opt):
                             instruction = f'type {text_to_type}'
                             print(f'instruction = {instruction}')
 
-                            # instruction = llm_agent.generate_action()
                             logging.info(f"The executed instruction: {instruction}")
 
                             miniwob_action = slm_agent.convert_to_miniwob_action(instruction)
@@ -600,14 +567,7 @@ def miniwob(opt):
                             # break
                             traceback.format_exc()
 
-                        # instruction = 'clickxpath //*[@id="subbtn"]'
-
-                        # miniwob_action = slm_agent.convert_to_miniwob_action(instruction)
-                        # states, rewards, dones, _ = env.step([miniwob_action])
-                        # print('rewards = {}'.format(rewards))
-
                     else:
-                        # return NotImplementedError
                         instruction = ''
                         pass
 
@@ -620,13 +580,6 @@ def miniwob(opt):
                         break
 
                     html_state = get_html_state(opt, states)
-                    
-                    # TODO: dump html_state to html_file
-                    
-                    # try:
-                    #     browser_env.page.set_content(html_state)
-                    # except:
-                    #     print('goto timeout')
                     
                     try:
                         if response['action'] in ['type', 'select']:
