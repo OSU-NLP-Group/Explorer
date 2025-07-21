@@ -84,6 +84,21 @@ Structure of `in_domain_test.json`:
  <path to traj dir n>,
 ]
 ```
+
+### MiniWoB++ 
+
+**Step 1:** Installation
+```
+conda create --name myenv python=3.12.5
+pip install -r evals/miniwob/requirements.txt
+```
+
+**Step 2:** Run the evaluation script:
+
+```
+bash evals/miniwob/eval-explorer.sh
+```
+
 ## Citation
 
 If you find this work useful, please consider starring our repo and citing our paper: 

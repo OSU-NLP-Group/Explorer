@@ -1,0 +1,187 @@
+Task ID: 1, task: choose-list
+INFO:root:Starting WebDriver Instance 0
+/home/pahuja.9/research_nfs/conda_envs/miniwob/lib/python3.12/site-packages/gym/utils/passive_env_checker.py:20: UserWarning: [33mWARN: It seems a Box observation space is an image but the `dtype` is not `np.uint8`, actual type: int64. If the Box observation space is not an image, we recommend flattening the observation to have only a 1D vector.[0m
+  logger.warn(
+inside setup
+/home/pahuja.9/research_nfs/conda_envs/miniwob/lib/python3.12/site-packages/transformers/models/auto/image_processing_auto.py:517: FutureWarning: The image_processor_class argument is deprecated and will be removed in v4.42. Please use `slow_image_processor_class`, or `fast_image_processor_class` instead
+  warnings.warn(
+slmagent /home/pahuja.9/research_nfs/web_traj_gen/ckpts/phi3.5_s10_m2wtrain_sample_10epoch/
+You are attempting to use Flash Attention 2.0 with a model not initialized on GPU. Make sure to move the model to GPU after initializing it on CPU with `model.to('cuda')`.
+INFO:transformers_modules.microsoft.Phi-3.5-vision-instruct.4a0d683eba9f1d0cbfb6151705d1ee73c25a80ca.modeling_phi3_v:learnable separator enabled for hd transform, hd_transform_order = sub_glb
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  4.15it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  5.28it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  5.07it/s]
+seed = 0.8160737880099589
+/home/pahuja.9/research_nfs/conda_envs/miniwob/lib/python3.12/site-packages/gym/utils/passive_env_checker.py:174: UserWarning: [33mWARN: Future gym versions will require that `Env.reset` can be passed a `seed` instead of using `Env.seed` for resetting the environment random number generator.[0m
+  logger.warn(
+/home/pahuja.9/research_nfs/conda_envs/miniwob/lib/python3.12/site-packages/gym/utils/passive_env_checker.py:187: UserWarning: [33mWARN: Future gym versions will require that `Env.reset` can be passed `options` to allow the environment initialisation to be passed additional information.[0m
+  logger.warn(
+/home/pahuja.9/research_nfs/conda_envs/miniwob/lib/python3.12/site-packages/gym/utils/passive_env_checker.py:195: UserWarning: [33mWARN: The result returned by `env.reset()` was not a tuple of the form `(obs, info)`, where `obs` is a observation and `info` is a dictionary containing additional information. Actual type: `<class 'list'>`[0m
+  logger.warn(
+INFO:root:len(rects) = 12
+INFO:root:rects = {'10': {'tag_name': 'div', 'role': '', 'aria-name': '', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 8, 'width': 1264, 'height': 39, 'top': 8, 'right': 1272, 'bottom': 47, 'left': 8}], 'xpath': '//div[@id="wrap"]'}, '11': {'tag_name': 'div', 'role': '', 'aria-name': 'Select Jacqueline from the list and click Submit.', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 8, 'width': 1264, 'height': 18, 'top': 8, 'right': 1272, 'bottom': 26, 'left': 8}], 'xpath': '//div[@id="query"]'}, '12': {'tag_name': 'div', 'role': '', 'aria-name': '', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 26, 'width': 1264, 'height': 21, 'top': 26, 'right': 1272, 'bottom': 47, 'left': 8}], 'xpath': '//div[@id="area"]'}, '13': {'tag_name': 'select', 'role': 'combobox', 'aria-name': '', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 27, 'width': 150, 'height': 19, 'top': 27, 'right': 158, 'bottom': 46, 'left': 8}], 'xpath': '//select[@id="options"]'}, '14': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Jacqueline', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Jacqueline"]'}, '15': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Gertrude', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Gertrude"]'}, '16': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Ashia', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Ashia"]'}, '17': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Hanni', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Hanni"]'}, '18': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Britt', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Britt"]'}, '19': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Shari', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Shari"]'}, '20': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Doe', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Doe"]'}, '21': {'tag_name': 'button', 'role': 'button', 'aria-name': 'Submit', 'v-scrollable': False, 'rects': [{'x': 158, 'y': 26, 'width': 57.484375, 'height': 21, 'top': 26, 'right': 215.484375, 'bottom': 47, 'left': 158}], 'xpath': '//button[text()="Submit"]'}}
+INFO:root:The number of generated action steps: 10
+goal = Select Jacqueline from the list and click Submit.
+step_id = 0, action_history = []
+acc_tree = [10] [DIV] []
+[12] [DIV] []
+[13] [SELECT] []
+[14] [OPTION] [Jacqueline]
+[15] [OPTION] [Gertrude]
+[16] [OPTION] [Ashia]
+[17] [OPTION] [Hanni]
+[18] [OPTION] [Britt]
+[19] [OPTION] [Shari]
+[20] [OPTION] [Doe]
+[21] [BUTTON] [Submit]
+The attention mask is not set and cannot be inferred from input because pad token is same as eos token. As a consequence, you may observe unexpected behavior. Please pass your input's `attention_mask` to obtain reliable results.
+The `seen_tokens` attribute is deprecated and will be removed in v4.41. Use the `cache_position` model input instead.
+raw_response = {'action': 'click', 'action_natural_language': "Click on the 'Jacqueline' option from the list.", 'idx': '14'} 
+
+response_dict_strs = ['{"action": "click","action_natural_language": "Click on the \'Jacqueline\' option from the list.","idx": "14"}']
+INFO:root:response_dict = {'action': 'click', 'action_natural_language': "Click on the 'Jacqueline' option from the list.", 'idx': '14'}
+rects = {'10': {'tag_name': 'div', 'role': '', 'aria-name': '', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 8, 'width': 1264, 'height': 39, 'top': 8, 'right': 1272, 'bottom': 47, 'left': 8}], 'xpath': '//div[@id="wrap"]'}, '11': {'tag_name': 'div', 'role': '', 'aria-name': 'Select Jacqueline from the list and click Submit.', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 8, 'width': 1264, 'height': 18, 'top': 8, 'right': 1272, 'bottom': 26, 'left': 8}], 'xpath': '//div[@id="query"]'}, '12': {'tag_name': 'div', 'role': '', 'aria-name': '', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 26, 'width': 1264, 'height': 21, 'top': 26, 'right': 1272, 'bottom': 47, 'left': 8}], 'xpath': '//div[@id="area"]'}, '13': {'tag_name': 'select', 'role': 'combobox', 'aria-name': '', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 27, 'width': 150, 'height': 19, 'top': 27, 'right': 158, 'bottom': 46, 'left': 8}], 'xpath': '//select[@id="options"]'}, '14': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Jacqueline', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Jacqueline"]'}, '15': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Gertrude', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Gertrude"]'}, '16': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Ashia', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Ashia"]'}, '17': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Hanni', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Hanni"]'}, '18': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Britt', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Britt"]'}, '19': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Shari', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Shari"]'}, '20': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Doe', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Doe"]'}, '21': {'tag_name': 'button', 'role': 'button', 'aria-name': 'Submit', 'v-scrollable': False, 'rects': [{'x': 158, 'y': 26, 'width': 57.484375, 'height': 21, 'top': 26, 'right': 215.484375, 'bottom': 47, 'left': 158}], 'xpath': '//button[text()="Submit"]'}}
+instruction = clickxpath //option[text()="Jacqueline"]
+flag 4
+INFO:root:The executed instruction: clickxpath //option[text()="Jacqueline"]
+/home/pahuja.9/research_nfs/conda_envs/miniwob/lib/python3.12/site-packages/gym/utils/passive_env_checker.py:219: DeprecationWarning: [33mWARN: Core environment is written in old step API which returns one bool instead of two. It is recommended to rewrite the environment with new step API. [0m
+  logger.deprecation(
+/home/pahuja.9/research_nfs/conda_envs/miniwob/lib/python3.12/site-packages/gym/utils/passive_env_checker.py:226: UserWarning: [33mWARN: Expects `done` signal to be a boolean, actual type: <class 'list'>[0m
+  logger.warn(
+/home/pahuja.9/research_nfs/conda_envs/miniwob/lib/python3.12/site-packages/gym/utils/passive_env_checker.py:137: UserWarning: [33mWARN: The obs returned by the `step()` method was expecting a numpy array, actual type: <class 'list'>[0m
+  logger.warn(
+/home/pahuja.9/research_nfs/conda_envs/miniwob/lib/python3.12/site-packages/gym/spaces/box.py:227: UserWarning: [33mWARN: Casting input x to numpy array.[0m
+  logger.warn("Casting input x to numpy array.")
+/home/pahuja.9/research_nfs/conda_envs/miniwob/lib/python3.12/site-packages/gym/utils/passive_env_checker.py:165: UserWarning: [33mWARN: The obs returned by the `step()` method is not within the observation space.[0m
+  logger.warn(f"{pre} is not within the observation space.")
+/home/pahuja.9/research_nfs/conda_envs/miniwob/lib/python3.12/site-packages/gym/utils/passive_env_checker.py:252: UserWarning: [33mWARN: The reward returned by `step()` must be a float, int, np.integer or np.floating, actual type: <class 'list'>[0m
+  logger.warn(
+rewards = [0.0], dones = [False]
+INFO:root:Action to be executed: {'action_type': <ActionTypes.CLICK: 6>, 'coords': array([0., 0.], dtype=float32), 'element_role': 31, 'element_name': '', 'text': [], 'page_number': 0, 'url': '', 'nth': 0, 'pw_code': '', 'element_id': '14', 'key_comb': '', 'direction': '', 'answer': '', 'raw_prediction': ''}
+INFO:root:action = {'action_type': <ActionTypes.CLICK: 6>, 'coords': array([0., 0.], dtype=float32), 'element_role': 31, 'element_name': '', 'text': [], 'page_number': 0, 'url': '', 'nth': 0, 'pw_code': '', 'element_id': '14', 'key_comb': '', 'direction': '', 'answer': '', 'raw_prediction': ''}
+INFO:root:action = ACTION_TYPES.CLICK
+ERROR:root:Traceback (most recent call last):
+  File "/home/pahuja.9/scratch/explorer_release/evals/miniwob/browser_env.py", line 230, in step
+    self.page = execute_action(
+                ^^^^^^^^^^^^^^^
+  File "<@beartype(evals.miniwob.actions.execute_action) at 0x7f59701fe700>", line 97, in execute_action
+  File "/home/pahuja.9/scratch/explorer_release/evals/miniwob/actions.py", line 1366, in execute_action
+    element_center = obseration_processor.get_element_center(element_id)  # type: ignore[attr-defined]
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<@beartype(evals.miniwob.processors.ImageObservationProcessor.get_element_center) at 0x7f59b320fa60>", line 31, in get_element_center
+  File "/home/pahuja.9/scratch/explorer_release/evals/miniwob/processors.py", line 1086, in get_element_center
+    center_x, center_y, width, height = self.som_id_info[element_id]
+                                        ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: '14'
+
+INFO:root:Action executed successfully: False
+INFO:root:len(rects) = 12
+INFO:root:rects = {'10': {'tag_name': 'div', 'role': '', 'aria-name': '', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 8, 'width': 1264, 'height': 39, 'top': 8, 'right': 1272, 'bottom': 47, 'left': 8}], 'xpath': '//div[@id="wrap"]'}, '11': {'tag_name': 'div', 'role': '', 'aria-name': 'Select Jacqueline from the list and click Submit.', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 8, 'width': 1264, 'height': 18, 'top': 8, 'right': 1272, 'bottom': 26, 'left': 8}], 'xpath': '//div[@id="query"]'}, '12': {'tag_name': 'div', 'role': '', 'aria-name': '', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 26, 'width': 1264, 'height': 21, 'top': 26, 'right': 1272, 'bottom': 47, 'left': 8}], 'xpath': '//div[@id="area"]'}, '13': {'tag_name': 'select', 'role': 'combobox', 'aria-name': '', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 27, 'width': 150, 'height': 19, 'top': 27, 'right': 158, 'bottom': 46, 'left': 8}], 'xpath': '//select[@id="options"]'}, '14': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Jacqueline', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Jacqueline"]'}, '15': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Gertrude', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Gertrude"]'}, '16': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Ashia', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Ashia"]'}, '17': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Hanni', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Hanni"]'}, '18': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Britt', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Britt"]'}, '19': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Shari', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Shari"]'}, '20': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Doe', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Doe"]'}, '21': {'tag_name': 'button', 'role': 'button', 'aria-name': 'Submit', 'v-scrollable': False, 'rects': [{'x': 158, 'y': 26, 'width': 57.484375, 'height': 21, 'top': 26, 'right': 215.484375, 'bottom': 47, 'left': 158}], 'xpath': '//button[text()="Submit"]'}}
+step_id = 1, action_history = ["Click on the 'Jacqueline' option from the list."]
+acc_tree = [10] [DIV] []
+[12] [DIV] []
+[13] [SELECT] []
+[14] [OPTION] [Jacqueline]
+[15] [OPTION] [Gertrude]
+[16] [OPTION] [Ashia]
+[17] [OPTION] [Hanni]
+[18] [OPTION] [Britt]
+[19] [OPTION] [Shari]
+[20] [OPTION] [Doe]
+[21] [BUTTON] [Submit]
+raw_response = {'action': 'click', 'action_natural_language': "Click on the 'Submit' button to select Jacqueline.", 'idx': '21'} 
+
+response_dict_strs = ['{"action": "click","action_natural_language": "Click on the \'Submit\' button to select Jacqueline.","idx": "21"}']
+INFO:root:response_dict = {'action': 'click', 'action_natural_language': "Click on the 'Submit' button to select Jacqueline.", 'idx': '21'}
+rects = {'10': {'tag_name': 'div', 'role': '', 'aria-name': '', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 8, 'width': 1264, 'height': 39, 'top': 8, 'right': 1272, 'bottom': 47, 'left': 8}], 'xpath': '//div[@id="wrap"]'}, '11': {'tag_name': 'div', 'role': '', 'aria-name': 'Select Jacqueline from the list and click Submit.', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 8, 'width': 1264, 'height': 18, 'top': 8, 'right': 1272, 'bottom': 26, 'left': 8}], 'xpath': '//div[@id="query"]'}, '12': {'tag_name': 'div', 'role': '', 'aria-name': '', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 26, 'width': 1264, 'height': 21, 'top': 26, 'right': 1272, 'bottom': 47, 'left': 8}], 'xpath': '//div[@id="area"]'}, '13': {'tag_name': 'select', 'role': 'combobox', 'aria-name': '', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 27, 'width': 150, 'height': 19, 'top': 27, 'right': 158, 'bottom': 46, 'left': 8}], 'xpath': '//select[@id="options"]'}, '14': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Jacqueline', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Jacqueline"]'}, '15': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Gertrude', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Gertrude"]'}, '16': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Ashia', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Ashia"]'}, '17': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Hanni', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Hanni"]'}, '18': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Britt', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Britt"]'}, '19': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Shari', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Shari"]'}, '20': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Doe', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Doe"]'}, '21': {'tag_name': 'button', 'role': 'button', 'aria-name': 'Submit', 'v-scrollable': False, 'rects': [{'x': 158, 'y': 26, 'width': 57.484375, 'height': 21, 'top': 26, 'right': 215.484375, 'bottom': 47, 'left': 158}], 'xpath': '//button[text()="Submit"]'}}
+instruction = clickxpath //button[text()="Submit"]
+flag 4
+INFO:root:The executed instruction: clickxpath //button[text()="Submit"]
+rewards = [0.993571], dones = [True]
+success rate: 1 / 1 = 1.0
+
+
+
+slmagent /home/pahuja.9/research_nfs/web_traj_gen/ckpts/phi3.5_s10_m2wtrain_sample_10epoch/
+INFO:transformers_modules.microsoft.Phi-3.5-vision-instruct.4a0d683eba9f1d0cbfb6151705d1ee73c25a80ca.modeling_phi3_v:learnable separator enabled for hd transform, hd_transform_order = sub_glb
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  4.35it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  5.18it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  5.03it/s]
+seed = 0.9408432554248295
+INFO:root:len(rects) = 10
+INFO:root:rects = {'22': {'tag_name': 'div', 'role': '', 'aria-name': '', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 8, 'width': 1264, 'height': 39, 'top': 8, 'right': 1272, 'bottom': 47, 'left': 8}], 'xpath': '//div[@id="wrap"]'}, '23': {'tag_name': 'div', 'role': '', 'aria-name': 'Select Gayel from the list and click Submit.', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 8, 'width': 1264, 'height': 18, 'top': 8, 'right': 1272, 'bottom': 26, 'left': 8}], 'xpath': '//div[@id="query"]'}, '24': {'tag_name': 'div', 'role': '', 'aria-name': '', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 26, 'width': 1264, 'height': 21, 'top': 26, 'right': 1272, 'bottom': 47, 'left': 8}], 'xpath': '//div[@id="area"]'}, '25': {'tag_name': 'select', 'role': 'combobox', 'aria-name': '', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 27, 'width': 150, 'height': 19, 'top': 27, 'right': 158, 'bottom': 46, 'left': 8}], 'xpath': '//select[@id="options"]'}, '26': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Gerta', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Gerta"]'}, '27': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Joscelin', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Joscelin"]'}, '28': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Gayel', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Gayel"]'}, '29': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Eilis', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Eilis"]'}, '30': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Doralin', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Doralin"]'}, '31': {'tag_name': 'button', 'role': 'button', 'aria-name': 'Submit', 'v-scrollable': False, 'rects': [{'x': 158, 'y': 26, 'width': 57.484375, 'height': 21, 'top': 26, 'right': 215.484375, 'bottom': 47, 'left': 158}], 'xpath': '//button[text()="Submit"]'}}
+INFO:root:The number of generated action steps: 10
+goal = Select Gayel from the list and click Submit.
+step_id = 0, action_history = []
+acc_tree = [22] [DIV] []
+[24] [DIV] []
+[25] [SELECT] []
+[26] [OPTION] [Gerta]
+[27] [OPTION] [Joscelin]
+[28] [OPTION] [Gayel]
+[29] [OPTION] [Eilis]
+[30] [OPTION] [Doralin]
+[31] [BUTTON] [Submit]
+raw_response = {'action': 'click', 'action_natural_language': "Click on the 'Gayel' option to select it.", 'idx': '28'} 
+
+response_dict_strs = ['{"action": "click","action_natural_language": "Click on the \'Gayel\' option to select it.","idx": "28"}']
+INFO:root:response_dict = {'action': 'click', 'action_natural_language': "Click on the 'Gayel' option to select it.", 'idx': '28'}
+rects = {'22': {'tag_name': 'div', 'role': '', 'aria-name': '', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 8, 'width': 1264, 'height': 39, 'top': 8, 'right': 1272, 'bottom': 47, 'left': 8}], 'xpath': '//div[@id="wrap"]'}, '23': {'tag_name': 'div', 'role': '', 'aria-name': 'Select Gayel from the list and click Submit.', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 8, 'width': 1264, 'height': 18, 'top': 8, 'right': 1272, 'bottom': 26, 'left': 8}], 'xpath': '//div[@id="query"]'}, '24': {'tag_name': 'div', 'role': '', 'aria-name': '', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 26, 'width': 1264, 'height': 21, 'top': 26, 'right': 1272, 'bottom': 47, 'left': 8}], 'xpath': '//div[@id="area"]'}, '25': {'tag_name': 'select', 'role': 'combobox', 'aria-name': '', 'v-scrollable': False, 'rects': [{'x': 8, 'y': 27, 'width': 150, 'height': 19, 'top': 27, 'right': 158, 'bottom': 46, 'left': 8}], 'xpath': '//select[@id="options"]'}, '26': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Gerta', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Gerta"]'}, '27': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Joscelin', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Joscelin"]'}, '28': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Gayel', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Gayel"]'}, '29': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Eilis', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Eilis"]'}, '30': {'tag_name': 'option', 'role': 'option', 'aria-name': 'Doralin', 'v-scrollable': False, 'rects': [], 'xpath': '//option[text()="Doralin"]'}, '31': {'tag_name': 'button', 'role': 'button', 'aria-name': 'Submit', 'v-scrollable': False, 'rects': [{'x': 158, 'y': 26, 'width': 57.484375, 'height': 21, 'top': 26, 'right': 215.484375, 'bottom': 47, 'left': 158}], 'xpath': '//button[text()="Submit"]'}}
+instruction = clickxpath //option[text()="Gayel"]
+flag 4
+INFO:root:The executed instruction: clickxpath //option[text()="Gayel"]
+rewards = [0.0], dones = [False]
+INFO:root:Action to be executed: {'action_type': <ActionTypes.CLICK: 6>, 'coords': array([0., 0.], dtype=float32), 'element_role': 31, 'element_name': '', 'text': [], 'page_number': 0, 'url': '', 'nth': 0, 'pw_code': '', 'element_id': '28', 'key_comb': '', 'direction': '', 'answer': '', 'raw_prediction': ''}
+INFO:root:action = {'action_type': <ActionTypes.CLICK: 6>, 'coords': array([0., 0.], dtype=float32), 'element_role': 31, 'element_name': '', 'text': [], 'page_number': 0, 'url': '', 'nth': 0, 'pw_code': '', 'element_id': '28', 'key_comb': '', 'direction': '', 'answer': '', 'raw_prediction': ''}
+INFO:root:action = ACTION_TYPES.CLICK
+ERROR:root:Traceback (most recent call last):
+  File "/home/pahuja.9/scratch/explorer_release/evals/miniwob/browser_env.py", line 230, in step
+    self.page = execute_action(
+                ^^^^^^^^^^^^^^^
+  File "<@beartype(evals.miniwob.actions.execute_action) at 0x7f59701fe700>", line 97, in execute_action
+  File "/home/pahuja.9/scratch/explorer_release/evals/miniwob/actions.py", line 1366, in execute_action
+    element_center = obseration_processor.get_element_center(element_id)  # type: ignore[attr-defined]
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<@beartype(evals.miniwob.processors.ImageObservationProcessor.get_element_center) at 0x7f59b320fa60>", line 31, in get_element_center
+  File "/home/pahuja.9/scratch/explorer_release/evals/miniwob/processors.py", line 1086, in get_element_center
+    center_x, center_y, width, height = self.som_id_info[element_id]
+                                        ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: '28'
+
+INFO:root:Action executed successfully: False
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/pahuja.9/scratch/explorer_release/evals/miniwob/main_slm.py", line 708, in <module>
+    miniwob(opt)
+  File "/home/pahuja.9/scratch/explorer_release/evals/miniwob/main_slm.py", line 489, in miniwob
+    som_image_obs_new, acc_tree_new, browser_env, env, states, rects, rewards, dones = execute_action(response_dict, rects, action_history, action_history_complete, slm_agent, env, states, browser_env, image_processor, add_class=opt.add_class)
+                                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pahuja.9/scratch/explorer_release/evals/miniwob/main_slm.py", line 345, in execute_action
+    som_image_obs, acc_tree, rects = image_processor.process_new(browser_env.page, browser_env.page.client, intent=None, add_class=add_class, omit_task_desc_ele=True, goal=goal, opt=opt)
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pahuja.9/scratch/explorer_release/evals/miniwob/processors.py", line 734, in process_new
+    browser_info = self.fetch_browser_info(page, client)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<@beartype(evals.miniwob.processors.ImageObservationProcessor.fetch_browser_info) at 0x7f59712ea660>", line 12, in fetch_browser_info
+  File "/home/pahuja.9/scratch/explorer_release/evals/miniwob/processors.py", line 969, in fetch_browser_info
+    win_left_bound = page.evaluate("window.pageXOffset")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pahuja.9/research_nfs/conda_envs/miniwob/lib/python3.12/site-packages/playwright/sync_api/_generated.py", line 8514, in evaluate
+    self._sync(
+  File "/home/pahuja.9/research_nfs/conda_envs/miniwob/lib/python3.12/site-packages/playwright/_impl/_sync_base.py", line 108, in _sync
+    setattr(task, "__pw_stack__", inspect.stack())
+                                  ^^^^^^^^^^^^^^^
+  File "/home/pahuja.9/research_nfs/conda_envs/miniwob/lib/python3.12/inspect.py", line 1777, in stack
+  File "/home/pahuja.9/research_nfs/conda_envs/miniwob/lib/python3.12/inspect.py", line 1752, in getouterframes
+    traceback_info = getframeinfo(frame, context)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pahuja.9/research_nfs/conda_envs/miniwob/lib/python3.12/inspect.py", line 1714, in getframeinfo
+    lines, lnum = findsource(frame)
+                  ^^^^^^^^^^^^^^^^^
+  File "/home/pahuja.9/research_nfs/conda_envs/miniwob/lib/python3.12/inspect.py", line 1078, in findsource
+    file = getsourcefile(object)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pahuja.9/research_nfs/conda_envs/miniwob/lib/python3.12/inspect.py", line 970, in getsourcefile
+    module = getmodule(object, filename)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pahuja.9/research_nfs/conda_envs/miniwob/lib/python3.12/inspect.py", line 1009, in getmodule
+    if f == _filesbymodname.get(modname, None):
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
