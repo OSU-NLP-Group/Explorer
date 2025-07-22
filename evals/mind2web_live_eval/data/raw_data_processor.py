@@ -4,9 +4,11 @@ from urllib.parse import unquote, parse_qs, urlparse
 import json5
 import ujson as json
 
+
 def is_url(string):
     parsed = urlparse(string)
     return bool(parsed.scheme) and bool(parsed.netloc)
+
 
 def process_file(input_file, output_file):
     with open(input_file, "r", encoding="utf-8") as f:
@@ -25,7 +27,6 @@ def process_file(input_file, output_file):
         print("reference_steps:", reference_steps)
         for step in steps:
             if "rewardFunction" in step.keys() and len(step["rewardFunction"]) > 0:
-
                 # hack: put url in description in href
                 if "description" in step.keys() and is_url(step["description"]):
                     step["href"] = step["description"]
@@ -62,39 +63,62 @@ def process_file(input_file, output_file):
                         if "element_path_exact" in temp["match_function_name"]:
                             temp["method"] = "selector"
                             temp["content"] = {
-                                "reference_answer": step["selector"], "netloc": netloc, "url": step["href"]
+                                "reference_answer": step["selector"],
+                                "netloc": netloc,
+                                "url": step["href"],
                             }
 
                         # element value match
                         elif "element_value_exact" in temp["match_function_name"]:
                             if "path" in temp["match_function_name"]:
-                                temp["match_function_name"] = temp["match_function_name"].replace("_path", "")
+                                temp["match_function_name"] = temp[
+                                    "match_function_name"
+                                ].replace("_path", "")
                                 temp["content"] = {
-                                    "reference_answer": step["value"], "netloc": netloc, "path": step["selector"], "url": step["href"]
+                                    "reference_answer": step["value"],
+                                    "netloc": netloc,
+                                    "path": step["selector"],
+                                    "url": step["href"],
                                 }
                             else:
                                 temp["content"] = {
-                                    "reference_answer": step["value"], "netloc": netloc, "url": step["href"]
+                                    "reference_answer": step["value"],
+                                    "netloc": netloc,
+                                    "url": step["href"],
                                 }
                         elif "element_value_include" in temp["match_function_name"]:
                             if "path" in temp["match_function_name"]:
-                                temp["match_function_name"] = temp["match_function_name"].replace("_path", "")
+                                temp["match_function_name"] = temp[
+                                    "match_function_name"
+                                ].replace("_path", "")
                                 temp["content"] = {
-                                    "reference_answer": func["required"], "netloc": netloc, "path": step["selector"], "url": step["href"]
+                                    "reference_answer": func["required"],
+                                    "netloc": netloc,
+                                    "path": step["selector"],
+                                    "url": step["href"],
                                 }
                             else:
                                 temp["content"] = {
-                                    "reference_answer": func["required"], "netloc": netloc, "url": step["href"]
+                                    "reference_answer": func["required"],
+                                    "netloc": netloc,
+                                    "url": step["href"],
                                 }
                         elif "element_value_semantic" in temp["match_function_name"]:
                             if "path" in temp["match_function_name"]:
-                                temp["match_function_name"] = temp["match_function_name"].replace("_path", "")
+                                temp["match_function_name"] = temp[
+                                    "match_function_name"
+                                ].replace("_path", "")
                                 temp["content"] = {
-                                    "reference_answer": func["optional"], "netloc": netloc, "path": step["selector"], "url": step["href"]
+                                    "reference_answer": func["optional"],
+                                    "netloc": netloc,
+                                    "path": step["selector"],
+                                    "url": step["href"],
                                 }
                             else:
                                 temp["content"] = {
-                                    "reference_answer": func["optional"], "netloc": netloc, "url": step["href"]
+                                    "reference_answer": func["optional"],
+                                    "netloc": netloc,
+                                    "url": step["href"],
                                 }
 
                     # url match
@@ -103,7 +127,7 @@ def process_file(input_file, output_file):
                         temp["content"] = {
                             "key": unquote(key),
                             "reference_answer": unquote(func["required"]),
-                            "url": step["href"]
+                            "url": step["href"],
                         }
                     elif "url_exact" in temp["match_function_name"]:
                         key = func["key"] if "key" in func.keys() else ""
@@ -118,7 +142,9 @@ def process_file(input_file, output_file):
                                 print("\nError in parsing URL!")
                                 print("key to be parsed: ", key)
                                 print("recorded url: ", step["href"])
-                                input("\nPress Enter to ignore and continue processing.")
+                                input(
+                                    "\nPress Enter to ignore and continue processing."
+                                )
                         else:
                             reference_answer = step["href"]
                         key = unquote(key)
@@ -127,67 +153,79 @@ def process_file(input_file, output_file):
                         temp["content"] = {
                             "key": key,
                             "reference_answer": reference_answer,
-                            "url": step["href"]
+                            "url": step["href"],
                         }
                     elif "url_semantic" in temp["match_function_name"]:
                         key = func["key"] if "key" in func.keys() else ""
                         temp["content"] = {
                             "key": key,
                             "reference_answer": func["optional"],
-                            "url": step["href"]
+                            "url": step["href"],
                         }
                         key = unquote(key)
                     elif "cache_data_exact" in temp["match_function_name"]:
                         temp["content"] = {
                             "reference_answer": step["value"],
-                            "url": step["href"]
+                            "url": step["href"],
                         }
                     elif "cache_data_include" in temp["match_function_name"]:
                         temp["content"] = {
                             "reference_answer": unquote(func["required"]),
-                            "url": step["href"]
+                            "url": step["href"],
                         }
                     elif "cache_data_semantic" in temp["match_function_name"]:
                         temp["content"] = {
                             "reference_answer": unquote(func["optional"]),
-                            "url": step["href"]
+                            "url": step["href"],
                         }
                     elif "final_answer_exact" in temp["match_function_name"]:
                         temp["content"] = {
                             "reference_answer": step["value"],
-                            "url": step["href"]
+                            "url": step["href"],
                         }
                     elif "final_answer_semantic" in temp["match_function_name"]:
                         temp["content"] = {
                             "reference_answer": unquote(func["optional"]),
-                            "url": step["href"]
+                            "url": step["href"],
                         }
                     elif "final_answer_include" in temp["match_function_name"]:
                         temp["content"] = {
                             "reference_answer": unquote(func["required"]),
-                            "url": step["href"]
+                            "url": step["href"],
                         }
                     else:
                         print("*" * 50, "\n", "other match function, coming soon!")
                     evaluation.append(temp)
-        output.append({
-            "index": index,
-            "task": task_name,
-            "reference_task_length": reference_steps,
-            "evaluation": evaluation
-        })
+        output.append(
+            {
+                "index": index,
+                "task": task_name,
+                "reference_task_length": reference_steps,
+                "evaluation": evaluation,
+            }
+        )
 
     with open(output_file, "w", encoding="utf-8") as f_out:
-        json5.dump(output, fp=f_out, ensure_ascii=False, indent=4, quote_keys=True, trailing_commas=False)
+        json5.dump(
+            output,
+            fp=f_out,
+            ensure_ascii=False,
+            indent=4,
+            quote_keys=True,
+            trailing_commas=False,
+        )
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Process JSON file and generate output.")
+    parser = argparse.ArgumentParser(
+        description="Process JSON file and generate output."
+    )
     parser.add_argument("--input-file", required=True, help="Input JSON file")
     parser.add_argument("--output-file", required=True, help="Output JSON file")
     args = parser.parse_args()
 
     process_file(args.input_file, args.output_file)
 
+
 if __name__ == "__main__":
     main()
-

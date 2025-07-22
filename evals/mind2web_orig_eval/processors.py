@@ -15,8 +15,12 @@ from beartype import beartype
 from gymnasium import spaces
 from PIL import Image, ImageDraw, ImageFont
 from playwright.sync_api import CDPSession, Page, ViewportSize
-from playwright.async_api import CDPSession as CDPSessionAsync, Page as PageAsync, ViewportSize as ViewportSizeAsync
-from typing import Any, Dict, TypedDict, Union # dict, list, tuple
+from playwright.async_api import (
+    CDPSession as CDPSessionAsync,
+    Page as PageAsync,
+    ViewportSize as ViewportSizeAsync,
+)
+from typing import Any, Dict, TypedDict, Union  # dict, list, tuple
 import logging
 
 from .constants import (
@@ -36,6 +40,7 @@ from .utils import (
 
 Observation = str | npt.NDArray[np.uint8]
 
+
 class ObservationProcessor:
     def process(self, page: Page, client: CDPSession) -> Observation:
         raise NotImplementedError
@@ -49,6 +54,7 @@ def create_empty_metadata() -> ObservationMetadata:
     return {
         "obs_nodes_info": {},
     }
+
 
 @beartype
 def png_bytes_to_numpy(png: bytes) -> npt.NDArray[np.uint8]:
@@ -77,14 +83,13 @@ class BrowserInfo(TypedDict):
     config: BrowserConfig
 
 
-
 class ImageObservationProcessor(ObservationProcessor):
     def __init__(
         self,
         args,
         observation_type: str,
         viewport_size,
-    ):  
+    ):
         self.args = args
         self.observation_type = observation_type
         self.observation_tag = "image"
@@ -152,8 +157,8 @@ class ImageObservationProcessor(ObservationProcessor):
         viewport_size=None,
         add_ids=True,
         bbox_color=None,
-        min_width=8, # 8
-        min_height=8, # 8
+        min_width=8,  # 8
+        min_height=8,  # 8
         bbox_padding=0,
         bbox_border=2,
         plot_ids=None,
@@ -196,7 +201,7 @@ class ImageObservationProcessor(ObservationProcessor):
         draw = ImageDraw.Draw(img)
 
         # Load a TTF font with a larger size
-        
+
         font_path = "media/SourceCodePro-SemiBold.ttf"
         font_size, padding = 16, 2
         # font = ImageFont.truetype(font_path, font_size)
@@ -224,31 +229,26 @@ class ImageObservationProcessor(ObservationProcessor):
                 # Add HTML textContent (if any) to the text representation.
                 if pd.notna(row["TextContent"]):
                     content += (
-                        row["TextContent"]
-                        .strip()
-                        .replace("\n", "")
-                        .replace("\t", "")
+                        row["TextContent"].strip().replace("\n", "").replace("\t", "")
                     )[
                         :200
                     ]  # Limit to 200 characters to avoid having too much text
 
                 # Check if the text is a CSS selector
-                if content and not (
-                    content.startswith(".") and "{" in content
-                ):
+                if content and not (content.startswith(".") and "{" in content):
                     # Add elements which are not interactable as StaticText
                     if content not in text_content_text:
-                        text_content_elements.append(
-                            f"[] [StaticText] [{content}]"
-                        )
+                        text_content_elements.append(f"[] [StaticText] [{content}]")
                         text_content_text.add(content)
                 continue
 
             if (plot_ids is not None) and (row["ID"] not in plot_ids):
                 continue
-            
+
             if intent is not None:
-                intent_match = any([inte in str(row["TextContent"]) for inte in intent.split(" ")])
+                intent_match = any(
+                    [inte in str(row["TextContent"]) for inte in intent.split(" ")]
+                )
                 if not intent_match:
                     continue
             unique_id = str(index + 1)
@@ -264,7 +264,12 @@ class ImageObservationProcessor(ObservationProcessor):
                 row["Height"],
             )
             left, right, top, bottom = left - b_x, right - b_x, top - b_y, bottom - b_y
-            id2center[unique_id] = ((left + right) / 2, (bottom + top) / 2, width, height)
+            id2center[unique_id] = (
+                (left + right) / 2,
+                (bottom + top) / 2,
+                width,
+                height,
+            )
 
             if width >= min_width and height >= min_height:
                 # Get the next color in the cycle
@@ -329,16 +334,12 @@ class ImageObservationProcessor(ObservationProcessor):
                             if (
                                 new_text_rectangle[0] >= 0
                                 and new_text_rectangle[1] >= 0
-                                and new_text_rectangle[2]
-                                <= viewport_size["width"]
-                                and new_text_rectangle[3]
-                                <= viewport_size["height"]
+                                and new_text_rectangle[2] <= viewport_size["width"]
+                                and new_text_rectangle[3] <= viewport_size["height"]
                             ):
                                 # If the rectangle is within the viewport, check for overlaps
                                 overlaps = False
-                                for (
-                                    existing_rectangle
-                                ) in existing_text_rectangles:
+                                for existing_rectangle in existing_text_rectangles:
                                     if self.rectangles_overlap(
                                         new_text_rectangle,
                                         existing_rectangle,
@@ -433,9 +434,11 @@ class ImageObservationProcessor(ObservationProcessor):
             # Produce the SoM image, with bounding boxes
             try:
                 # import pdb; pdb.set_trace()
-                screenshot_bytes = page.screenshot() # full_page=True
+                screenshot_bytes = page.screenshot()  # full_page=True
                 # screenshot_bytes = page.screenshot()
-                som_bboxes = self.get_page_bboxes(page) #  js code, output som_bboxes is csv string
+                som_bboxes = self.get_page_bboxes(
+                    page
+                )  #  js code, output som_bboxes is csv string
                 screenshot_img = Image.open(BytesIO(screenshot_bytes))
 
                 bbox_img, id2center, content_str = self.draw_bounding_boxes(
@@ -444,7 +447,7 @@ class ImageObservationProcessor(ObservationProcessor):
                     viewport_size=self.viewport_size,
                     intent=intent,
                 )
-                
+
                 # bbox_img.save(f"test_{page.url.split('/')[-1]}.png")
                 self.som_id_info = id2center
                 self.meta_data["obs_nodes_info"] = id2center
@@ -472,9 +475,12 @@ class ImageObservationProcessor(ObservationProcessor):
                 screenshot = png_bytes_to_numpy(page.screenshot())
             return screenshot, ""
 
-    def process_new(self, page: Page, client: CDPSession, intent) -> npt.NDArray[np.uint8]:
+    def process_new(
+        self, page: Page, client: CDPSession, intent
+    ) -> npt.NDArray[np.uint8]:
         import os
         from in_domain_eval.set_of_mark import add_set_of_mark
+
         page.wait_for_load_state("load", timeout=5000)
 
         try:
@@ -492,20 +498,25 @@ class ImageObservationProcessor(ObservationProcessor):
         rects = page.evaluate("MultimodalWebSurfer.getInteractiveRects();")
 
         # print(rects)
-        
-        
 
         id2center = {}
 
         for box_id in rects:
             box = rects[box_id]
-            id2center[box_id] = (box["rects"][0]["x"] + box["rects"][0]["width"]/2, box["rects"][0]["y"] + box["rects"][0]["height"]/2, box["rects"][0]["width"], box["rects"][0]["height"])
+            id2center[box_id] = (
+                box["rects"][0]["x"] + box["rects"][0]["width"] / 2,
+                box["rects"][0]["y"] + box["rects"][0]["height"] / 2,
+                box["rects"][0]["width"],
+                box["rects"][0]["height"],
+            )
         self.som_id_info = id2center
         self.meta_data["obs_nodes_info"] = id2center
 
         # print("id2center: ", id2center)
 
-        som_screenshot, visible_rects, rects_above, rects_below = add_set_of_mark(page.screenshot(), rects)
+        som_screenshot, visible_rects, rects_above, rects_below = add_set_of_mark(
+            page.screenshot(), rects
+        )
         w, h = som_screenshot.size
 
         # print(f"Visible Rects: {visible_rects}")
@@ -522,26 +533,28 @@ class ImageObservationProcessor(ObservationProcessor):
         acc_tree = "\n".join(acc_tree)
         # print(acc_tree)
 
-        '''
+        """
         bboxes_visible = [rects[v] for v in visible_rects]
         bboxes_visible_ratio = [[b['rects'][0]['x']/w, b['rects'][0]['y']/h, b['rects'][0]['width']/w, b['rects'][0]['height']/h] for b in bboxes_visible]
         # convert from xywh to xcycwh
         bboxes_visible_ratio = [[b[0] + b[2]/2, b[1] + b[3]/2, b[2], b[3]] for b in bboxes_visible_ratio]
-        '''
-        '''
+        """
+        """
         screenshot_bytes = page.screenshot()
         # som_screenshot.save('/home/yadonglu/sandbox/data/orca/parsed_html_demo_img_result_mmwebsurfer.png')
         som_screenshot_bytes = BytesIO()
         som_screenshot.save(som_screenshot_bytes, format="PNG")
         som_screenshot_bytes = som_screenshot_bytes.getvalue()
-        '''
+        """
         som_screenshot = np.array(som_screenshot)
         return som_screenshot, acc_tree
 
-    async def process_new_async(self, page: PageAsync, client: CDPSessionAsync, intent) -> npt.NDArray[np.uint8]:
+    async def process_new_async(
+        self, page: PageAsync, client: CDPSessionAsync, intent
+    ) -> npt.NDArray[np.uint8]:
         import os
         from src.webagent.set_of_mark import add_set_of_mark
-        
+
         # logging.info('inside process_new_async')
         await page.wait_for_load_state("load", timeout=5000)
 
@@ -560,20 +573,25 @@ class ImageObservationProcessor(ObservationProcessor):
         rects = await page.evaluate("MultimodalWebSurfer.getInteractiveRects();")
 
         # print(rects)
-        
-        
 
         id2center = {}
 
         for box_id in rects:
             box = rects[box_id]
-            id2center[box_id] = (box["rects"][0]["x"] + box["rects"][0]["width"]/2, box["rects"][0]["y"] + box["rects"][0]["height"]/2, box["rects"][0]["width"], box["rects"][0]["height"])
+            id2center[box_id] = (
+                box["rects"][0]["x"] + box["rects"][0]["width"] / 2,
+                box["rects"][0]["y"] + box["rects"][0]["height"] / 2,
+                box["rects"][0]["width"],
+                box["rects"][0]["height"],
+            )
         self.som_id_info = id2center
         self.meta_data["obs_nodes_info"] = id2center
 
         # print("id2center: ", id2center)
         page_screenshot = await page.screenshot()
-        som_screenshot, visible_rects, rects_above, rects_below = add_set_of_mark(page_screenshot, rects)
+        som_screenshot, visible_rects, rects_above, rects_below = add_set_of_mark(
+            page_screenshot, rects
+        )
         w, h = som_screenshot.size
 
         # logging.info(f"Visible Rects: {visible_rects}")
@@ -590,19 +608,19 @@ class ImageObservationProcessor(ObservationProcessor):
         acc_tree = "\n".join(acc_tree)
         # print(acc_tree)
 
-        '''
+        """
         bboxes_visible = [rects[v] for v in visible_rects]
         bboxes_visible_ratio = [[b['rects'][0]['x']/w, b['rects'][0]['y']/h, b['rects'][0]['width']/w, b['rects'][0]['height']/h] for b in bboxes_visible]
         # convert from xywh to xcycwh
         bboxes_visible_ratio = [[b[0] + b[2]/2, b[1] + b[3]/2, b[2], b[3]] for b in bboxes_visible_ratio]
-        '''
-        '''
+        """
+        """
         screenshot_bytes = page.screenshot()
         # som_screenshot.save('/home/yadonglu/sandbox/data/orca/parsed_html_demo_img_result_mmwebsurfer.png')
         som_screenshot_bytes = BytesIO()
         som_screenshot.save(som_screenshot_bytes, format="PNG")
         som_screenshot_bytes = som_screenshot_bytes.getvalue()
-        '''
+        """
         som_screenshot = np.array(som_screenshot)
 
         # print('som_screenshot = ', som_screenshot)
@@ -612,7 +630,7 @@ class ImageObservationProcessor(ObservationProcessor):
         # print('type(acc_tree) = ', type(acc_tree))
 
         return som_screenshot, acc_tree
-    
+
     @beartype
     def fetch_browser_info(
         self,
@@ -637,7 +655,7 @@ class ImageObservationProcessor(ObservationProcessor):
 
         # logging.info('tree = {}'.format(tree))
         # await tree()
-        
+
         # calibrate the bounds, in some cases, the bounds are scaled somehow
         bounds = tree["documents"][0]["layout"]["bounds"]
         b = bounds[0]
@@ -719,7 +737,7 @@ class ImageObservationProcessor(ObservationProcessor):
 
         # logging.info('tree = {}'.format(tree))
         # await tree()
-        
+
         # calibrate the bounds, in some cases, the bounds are scaled somehow
         bounds = tree["documents"][0]["layout"]["bounds"]
         b = bounds[0]
@@ -757,7 +775,7 @@ class ImageObservationProcessor(ObservationProcessor):
         info: BrowserInfo = {"DOMTree": tree, "config": config}
 
         return info
-    
+
     @beartype
     def get_element_center(self, element_id: str) -> tuple[float, float]:
         if not self.observation_type == "image_som":
@@ -780,6 +798,7 @@ class ImageObservationProcessor(ObservationProcessor):
         #     center_x / self.viewport_size["width"],
         #     center_y / self.viewport_size["height"],
         # )
+
 
 class TextObervationProcessor(ObservationProcessor):
     def __init__(
@@ -857,9 +876,7 @@ class TextObervationProcessor(ObservationProcessor):
 
     @beartype
     @staticmethod
-    def partially_in_viewport(
-        bound: list[float], config: BrowserConfig
-    ) -> bool:
+    def partially_in_viewport(bound: list[float], config: BrowserConfig) -> bool:
         [x, y, width, height] = bound
         elem_left_bound = x
         elem_top_bound = y
@@ -916,9 +933,7 @@ class TextObervationProcessor(ObservationProcessor):
                 tree_bounds: list[Any] = [node_bound]
                 for child_idx in graph[idx]:
                     child_bound = add_union_bound(child_idx)
-                    tree_bounds.append(
-                        child_bound.copy() if child_bound else None
-                    )
+                    tree_bounds.append(child_bound.copy() if child_bound else None)
 
                 tree_bounds = [b for b in tree_bounds if valid_bbox(b)]
                 # convert to absolute coordinates
@@ -1003,9 +1018,7 @@ class TextObervationProcessor(ObservationProcessor):
                 if child_idx in layout_node_cursor:
                     cursor = layout_node_cursor.index(child_idx)
                     union_bound = union_bounds[cursor]
-                    if not self.partially_in_viewport(
-                        union_bound, info["config"]
-                    ):
+                    if not self.partially_in_viewport(union_bound, info["config"]):
                         continue
                     html += dfs(child_idx)
 
@@ -1075,12 +1088,8 @@ class TextObervationProcessor(ObservationProcessor):
             elif node["backendDOMNodeId"] not in backend_id_to_bound:
                 refine_node_ids.append(node["nodeId"])
             else:
-                node["bound"] = backend_id_to_bound[node["backendDOMNodeId"]][
-                    0
-                ]
-                node["union_bound"] = backend_id_to_bound[
-                    node["backendDOMNodeId"]
-                ][1]
+                node["bound"] = backend_id_to_bound[node["backendDOMNodeId"]][0]
+                node["union_bound"] = backend_id_to_bound[node["backendDOMNodeId"]][1]
                 node["offsetrect_bound"] = backend_id_to_bound[
                     node["backendDOMNodeId"]
                 ][2]
@@ -1100,12 +1109,12 @@ class TextObervationProcessor(ObservationProcessor):
             refine_node_idx = node_ids.index(refine_node_id)
 
             if parent_idx is not None:
-                accessibility_tree[refine_node_idx][
-                    "bound"
-                ] = accessibility_tree[parent_idx]["bound"]
-                accessibility_tree[refine_node_idx][
-                    "union_bound"
-                ] = accessibility_tree[parent_idx]["union_bound"]
+                accessibility_tree[refine_node_idx]["bound"] = accessibility_tree[
+                    parent_idx
+                ]["bound"]
+                accessibility_tree[refine_node_idx]["union_bound"] = accessibility_tree[
+                    parent_idx
+                ]["union_bound"]
                 accessibility_tree[refine_node_idx][
                     "offsetrect_bound"
                 ] = accessibility_tree[parent_idx]["offsetrect_bound"]
@@ -1249,10 +1258,7 @@ class TextObervationProcessor(ObservationProcessor):
                 match = re.search(pattern, line)
                 if match:
                     static_text = match.group(1)
-                    if all(
-                        static_text not in prev_line
-                        for prev_line in prev_lines
-                    ):
+                    if all(static_text not in prev_line for prev_line in prev_lines):
                         clean_lines.append(line)
             else:
                 clean_lines.append(line)
@@ -1268,16 +1274,12 @@ class TextObervationProcessor(ObservationProcessor):
             current_tab_idx = open_tabs.index(page)
             for idx in range(len(open_tabs)):
                 if idx == current_tab_idx:
-                    tab_titles[
-                        idx
-                    ] = f"Tab {idx} (current): {open_tabs[idx].title()}"
+                    tab_titles[idx] = f"Tab {idx} (current): {open_tabs[idx].title()}"
                 else:
                     tab_titles[idx] = f"Tab {idx}: {open_tabs[idx].title()}"
             tab_title_str = " | ".join(tab_titles)
         except Exception:
-            tab_title_str = " | ".join(
-                ["Tab {idx}" for idx in range(len(open_tabs))]
-            )
+            tab_title_str = " | ".join(["Tab {idx}" for idx in range(len(open_tabs))])
 
         try:
             browser_info = self.fetch_browser_info(page, client)
@@ -1304,9 +1306,7 @@ class TextObervationProcessor(ObservationProcessor):
                 accessibility_tree = self.current_viewport_accessibility_tree(
                     browser_info, accessibility_tree
                 )
-            content, obs_nodes_info = self.parse_accessibility_tree(
-                accessibility_tree
-            )
+            content, obs_nodes_info = self.parse_accessibility_tree(accessibility_tree)
             content = self.clean_accesibility_tree(content)
             self.obs_nodes_info = obs_nodes_info
             self.meta_data["obs_nodes_info"] = obs_nodes_info
@@ -1320,9 +1320,7 @@ class TextObervationProcessor(ObservationProcessor):
                 # Load image from current url and run captioning on it.
                 if page.url not in self.url2caption and self.captioning_fn is not None:
                     try:
-                        image = Image.open(
-                            requests.get(page.url, stream=True).raw
-                        )
+                        image = Image.open(requests.get(page.url, stream=True).raw)
                         caption = self.captioning_fn([image])[0].strip()
                         self.url2caption[page.url] = remove_unicode(caption)
                     except Exception as e:
@@ -1370,9 +1368,7 @@ class TextObervationProcessor(ObservationProcessor):
                             for i in range(0, len(image_pixels), bs):
                                 try:
                                     captions.extend(
-                                        self.captioning_fn(
-                                            image_pixels[i : i + bs]
-                                        )
+                                        self.captioning_fn(image_pixels[i : i + bs])
                                     )
                                 except Exception as e:
                                     print("L628 WARNING: ", e)
@@ -1403,32 +1399,23 @@ class TextObervationProcessor(ObservationProcessor):
                                 if self.url2caption[image_url] not in updated_alt:
                                     updated_alt = f"{updated_alt}, description: {self.url2caption[image_url]}"
                             elif "data:image/svg" not in image_url:
-                                print(
-                                    f"WARNING: {image_url} not in self.url2caption"
-                                )
+                                print(f"WARNING: {image_url} not in self.url2caption")
 
                             if "url:" not in updated_alt:
                                 updated_alt = f"{updated_alt}, url: {image_url}"
 
                             safe_updated_alt = json.dumps(updated_alt)
-                            image.evaluate(
-                                f"node => node.alt = {safe_updated_alt}"
-                            )
+                            image.evaluate(f"node => node.alt = {safe_updated_alt}")
                         except Exception as e:
                             print("L653 WARNING:", e)
 
-                if (
-                    self.observation_type
-                    == "accessibility_tree_with_captioner"
-                ):
+                if self.observation_type == "accessibility_tree_with_captioner":
                     accessibility_tree = self.fetch_page_accessibility_tree(
                         browser_info, client
                     )
                     if self.current_viewport_only:
-                        accessibility_tree = (
-                            self.current_viewport_accessibility_tree(
-                                browser_info, accessibility_tree
-                            )
+                        accessibility_tree = self.current_viewport_accessibility_tree(
+                            browser_info, accessibility_tree
                         )
                     content, obs_nodes_info = self.parse_accessibility_tree(
                         accessibility_tree
@@ -1439,9 +1426,7 @@ class TextObervationProcessor(ObservationProcessor):
                 else:
                     content = ""  # Not used for SoM
         else:
-            raise ValueError(
-                f"Invalid observation type: {self.observation_type}"
-            )
+            raise ValueError(f"Invalid observation type: {self.observation_type}")
 
         self.browser_config = browser_info["config"]
         content = f"{tab_title_str}\n\n{content}"
@@ -1464,8 +1449,10 @@ class TextObervationProcessor(ObservationProcessor):
             center_y / self.viewport_size["height"],
         )
 
+
 class ObservationMetadata(TypedDict):
     obs_nodes_info: dict[str, Any]
+
 
 class ObservationHandler:
     """Main entry point to access all observation processor"""
@@ -1517,9 +1504,7 @@ class ObservationHandler:
         return spaces.Dict({"text": text_space, "image": image_space})
 
     @beartype
-    def get_observation(
-        self, page: Page, client: CDPSession
-    ) -> dict[str, Observation]:
+    def get_observation(self, page: Page, client: CDPSession) -> dict[str, Observation]:
         text_obs = self.text_processor.process(page, client)
         image_obs, content_str = self.image_processor.process(page, client)
         if content_str != "":

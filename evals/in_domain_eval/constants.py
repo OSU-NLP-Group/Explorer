@@ -296,7 +296,7 @@ IGNORED_ACTREE_PROPERTIES = (
 )
 
 INJECTED_ATTR_NAME = "aria-roledescription"
-BID_ATTR = "bid" # the attribute name for extra meta data
+BID_ATTR = "bid"  # the attribute name for extra meta data
 BID_EXPR = r"([-0-9]+)"
 FLOAT_EXPR = r"([+-]?(?:[0-9]*[.])?[0-9]+)"
 BOOL_EXPR = r"([01])"

@@ -20,21 +20,30 @@ from .utils import (
 from typing import Any
 import threading
 import traceback
+
 # from .processors import ObservationHandler, ObservationMetadata
-from .processors import ObservationHandler, ObservationMetadata, get_interactive_elements_with_playwright, find_closest_center_coordinate
+from .processors import (
+    ObservationHandler,
+    ObservationMetadata,
+    get_interactive_elements_with_playwright,
+    find_closest_center_coordinate,
+)
 from .actions_sync import ActionTypes
 from PIL import Image, ImageDraw
 import logging
 
 logger = logging.getLogger(__name__)
 
+
 class Tls(threading.local):
     def __init__(self) -> None:
         self.playwright = sync_playwright().start()
         # self.playwright = await async_playwright()
         # print("Create playwright instance in Thread", threading.current_thread().name)
+
     def close(self):
         self.playwright.stop()
+
 
 class ScriptBrowserEnv:
     """
@@ -44,6 +53,7 @@ class ScriptBrowserEnv:
     But in this prototype, we just support action space specified by Playwright script,
     and observation space is the html content of the page.
     """
+
     def __init__(self, args, browser_type: str, viewport_size: ViewportSize):
         self.args = args
         self.browser_type = browser_type
@@ -54,14 +64,14 @@ class ScriptBrowserEnv:
         self.page = None
 
         self.tls = Tls()
-            
+
         self.reset_finished = False
         self.current_viewport_only = False
 
         self.image_observation_type = "image_som"
         self.text_observation_type = "image_som"  # type: ignore[assignment]
         self.main_observation_type = "image"
-        
+
         self.observation_handler = ObservationHandler(
             args,
             self.main_observation_type,
@@ -72,16 +82,13 @@ class ScriptBrowserEnv:
             captioning_fn=None,
         )
 
-        self.observation_space = (
-            self.observation_handler.get_observation_space()
-        )
+        self.observation_space = self.observation_handler.get_observation_space()
 
         self.tree = HTMLTree()
 
     @beartype
     def setup(self, url) -> None:
-
-        print('inside setup')
+        print("inside setup")
 
         self.browser = self.tls.playwright.chromium.launch(headless=False, slow_mo=0)
 
@@ -92,14 +99,12 @@ class ScriptBrowserEnv:
             viewport=viewport_size,
             device_scale_factor=1,
         )
-        
+
         # if not url.startswith("http"):
-            # self.page = None
-            # return
+        # self.page = None
+        # return
         page = self.context.new_page()
-        client = page.context.new_cdp_session(
-            page
-        )  # talk to chrome devtools
+        client = page.context.new_cdp_session(page)  # talk to chrome devtools
         page.client = client  # type: ignore
 
         num_retries = 0
@@ -112,7 +117,7 @@ class ScriptBrowserEnv:
                 logging.error(traceback.format_exc())
                 num_retries += 1
                 time.sleep(5)
-        
+
         if num_retries == 3:
             raise Exception("Failed to load the page after 3 retries")
 
@@ -123,44 +128,69 @@ class ScriptBrowserEnv:
         self.html_content = self.page.content()
 
         # print(self.html_content)
-    
+
     async def async_setup(self, url) -> None:
         async with async_playwright() as p:
             self.browser = await p.chromium.launch(headless=False, slow_mo=0)
             viewport_size = self.viewport_size.copy()
-            self.context = await self.browser.new_context(viewport=viewport_size, device_scale_factor=1)
+            self.context = await self.browser.new_context(
+                viewport=viewport_size, device_scale_factor=1
+            )
             if not url.startswith("http"):
                 self.page = None
                 return
             self.page = await self.context.new_page()
-            client = await self.page.context.new_cdp_session(self.page)  # talk to chrome devtools
+            client = await self.page.context.new_cdp_session(
+                self.page
+            )  # talk to chrome devtools
             self.page.client = client  # type: ignore
             await self.page.goto(url)
 
             self.html_content = await self.page.content()
-    
+
     def get_obs(self, image_path, som_model, caption_model_processor):
-        som_image_obs, parsed_html_str, visible_rects = self.observation_handler.action_processor.process_new(self.page, self.page.client, intent=None, image_path=image_path, som_model=som_model, caption_model_processor=caption_model_processor)
-        
+        (
+            som_image_obs,
+            parsed_html_str,
+            visible_rects,
+        ) = self.observation_handler.action_processor.process_new(
+            self.page,
+            self.page.client,
+            intent=None,
+            image_path=image_path,
+            som_model=som_model,
+            caption_model_processor=caption_model_processor,
+        )
+
         try:
             self.html_content = self.page.content()
             self.tree.fetch_html_content(self.html_content)
             logger.info("-- Successfully fetch html content")
             tab_name = self.page.title()
-            parsed_html_str = f"current web tab name is \'{tab_name}\'\n" + parsed_html_str
+            parsed_html_str = (
+                f"current web tab name is '{tab_name}'\n" + parsed_html_str
+            )
 
         except Exception as e:
             logger.error(f"-- Failed to fetch html content,error occur {e}")
-        
+
         n_visible_covered = 0
 
         for ele_id in visible_rects:
             if ele_id in self.tree.uniqueId2nodeId:
                 n_visible_covered += 1
 
-        logger.info("n_visible_covered = {}/{}".format(n_visible_covered, len(visible_rects)))
+        logger.info(
+            "n_visible_covered = {}/{}".format(n_visible_covered, len(visible_rects))
+        )
 
-        return {'page': self.page, 'client': self.page.client, 'content_str': parsed_html_str, 'image_obs': som_image_obs, 'tree': self.tree}
+        return {
+            "page": self.page,
+            "client": self.page.client,
+            "content_str": parsed_html_str,
+            "image_obs": som_image_obs,
+            "tree": self.tree,
+        }
 
     def close(self):
         if self.page is not None:
@@ -171,7 +201,7 @@ class ScriptBrowserEnv:
             self.browser.close()
 
             self.tls.close()
-    
+
     async def async_close(self):
         await self.page.close()
         # await self.context.close()
@@ -180,15 +210,14 @@ class ScriptBrowserEnv:
     def step(
         self, action
     ) -> tuple[dict[str, Observation], float, bool, bool, dict[str, Any]]:
-
         success = False
         fail_error = ""
-        
+
         # som_image_obs, parsed_html_str = self.observation_handler.action_processor.process(self.page, self.page.client, None)
         # som_image_obs, parsed_html_str = self.observation_handler.action_processor.process_new(self.page, self.page.client, None)
 
-        logging.info('action = {}'.format(action))
-        logging.info('action = {}'.format(action["action_type"]))
+        logging.info("action = {}".format(action))
+        logging.info("action = {}".format(action["action_type"]))
 
         if action["action_type"] == ActionTypes.SELECT:
             # do the necessary processing to get id2selector
@@ -202,13 +231,24 @@ class ScriptBrowserEnv:
             for box_id in self.observation_handler.action_processor.rects:
                 box = self.observation_handler.action_processor.rects[box_id]
 
-                box_coord = (box["rects"][0]["x"], box["rects"][0]["y"], box["rects"][0]["width"], box["rects"][0]["height"])
+                box_coord = (
+                    box["rects"][0]["x"],
+                    box["rects"][0]["y"],
+                    box["rects"][0]["width"],
+                    box["rects"][0]["height"],
+                )
                 idx = find_closest_center_coordinate(box_coord, interactive_rects)
 
                 if idx is not None:
-                    self.observation_handler.action_processor.id2selector[box_id] = interactive_rects[idx][4]
+                    self.observation_handler.action_processor.id2selector[
+                        box_id
+                    ] = interactive_rects[idx][4]
 
-            logging.info('id2selector = {}'.format(self.observation_handler.action_processor.id2selector))
+            logging.info(
+                "id2selector = {}".format(
+                    self.observation_handler.action_processor.id2selector
+                )
+            )
 
         try:
             self.page = execute_action(
@@ -223,16 +263,16 @@ class ScriptBrowserEnv:
         except Exception as e:
             fail_error = str(e)
             # traceback.print_exc()
-            logging.info('Error in executing action: {}'.format(fail_error))
+            logging.info("Error in executing action: {}".format(fail_error))
             logging.error(traceback.format_exc())
 
         logging.info("Action executed successfully: {}".format(success))
-        
+
         return
 
     def get_selector(self, element) -> str:
-        
-        selector = self.page.evaluate('''(element) => {
+        selector = self.page.evaluate(
+            """(element) => {
                 function elemToSelector(elem) {
                     const { tagName, id, className, parentElement } = elem;
 
@@ -277,53 +317,58 @@ class ScriptBrowserEnv:
                 }
 
                 return elemToSelector(element);
-            }''', element)
+            }""",
+            element,
+        )
 
         return selector
-    
-    def get_element_value(self,element) -> str:
+
+    def get_element_value(self, element) -> str:
         text = element.text_content()
         if text and text.strip():
             return text.strip()
 
-        title = element.get_attribute('title')
+        title = element.get_attribute("title")
         if title:
             return title
 
-        placeholder = element.get_attribute('placeholder')
+        placeholder = element.get_attribute("placeholder")
         if placeholder:
             return placeholder
 
-        aria_label = element.get_attribute('aria-label')
+        aria_label = element.get_attribute("aria-label")
         if aria_label:
             return aria_label
 
-        aria_checked = element.get_attribute('aria-checked')
+        aria_checked = element.get_attribute("aria-checked")
         if aria_checked:
             return aria_checked
 
-        element_type = element.get_attribute('type')
+        element_type = element.get_attribute("type")
         if element_type:
             return element_type
 
-        tag_name = element.evaluate('(element) => element.tagName.toLowerCase()')
+        tag_name = element.evaluate("(element) => element.tagName.toLowerCase()")
         if tag_name == "select":
             return "Select an option value"
 
         return ""
-    
+
     def get_element_by_coordinate(self, x=0, y=0):
         print("x = {}, y = {}".format(x, y))
 
-        self.page.evaluate(f'window.scrollTo({x}, {y})')
+        self.page.evaluate(f"window.scrollTo({x}, {y})")
 
         # element = self.page.evaluate_handle(f'document.elementFromPoint({x}, {y})')
-        element = self.page.evaluate_handle('''([x, y]) => {
+        element = self.page.evaluate_handle(
+            """([x, y]) => {
         const rect = document.documentElement.getBoundingClientRect();
         const adjustedX = x - rect.left;
         const adjustedY = y - rect.top;
         return document.elementFromPoint(adjustedX, adjustedY);
-    }''', [x, y])
+    }""",
+            [x, y],
+        )
 
         print("element = ", element)
 
@@ -333,11 +378,12 @@ class ScriptBrowserEnv:
         except Exception as e:
             print(e)
             logger.info(traceback.format_exc())
-            selector=''
-            value=''
+            selector = ""
+            value = ""
 
         print("ELEMENT VALUE IS DONE: ", value)
-        return {'selector': selector, 'value': value}
+        return {"selector": selector, "value": value}
+
 
 @beartype
 class ActionParsingError(Exception):

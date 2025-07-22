@@ -5,6 +5,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class Action(TypedDict):
     action_type: int
     element_id: int
@@ -35,7 +36,7 @@ def create_click_action(elementid: int) -> Action:
         "element_id": elementid,
         "url": "",
         "fill_text": "",
-        "element_name": ""
+        "element_name": "",
     }
 
 
@@ -46,7 +47,7 @@ def create_goto_action(elementid: int, url: str) -> Action:
         "element_id": elementid,
         "url": url,
         "fill_text": "",
-        "element_name": ""
+        "element_name": "",
     }
 
 
@@ -57,7 +58,7 @@ def create_none_action(elementid: int) -> Action:
         "element_id": elementid,
         "url": "",
         "fill_text": "",
-        "element_name": ""
+        "element_name": "",
     }
 
 
@@ -68,7 +69,7 @@ def create_fill_action(elementid: int, fill_text: str) -> Action:
         "element_id": elementid,
         "url": "",
         "fill_text": fill_text,
-        "element_name": ""
+        "element_name": "",
     }
 
 
@@ -79,7 +80,7 @@ def create_fill_search_action(elementid: int, fill_text: str) -> Action:
         "element_id": elementid,
         "url": "",
         "fill_text": fill_text,
-        "element_name": ""
+        "element_name": "",
     }
 
 
@@ -90,7 +91,7 @@ def create_search_action(elementid: int, text: str) -> Action:
         "element_id": elementid,
         "url": "https://www.google.com",
         "fill_text": text,
-        "element_name": ""
+        "element_name": "",
     }
 
 
@@ -101,7 +102,7 @@ def create_go_back_action(elementid: int) -> Action:
         "element_id": elementid,
         "url": "",
         "fill_text": "",
-        "element_name": ""
+        "element_name": "",
     }
 
 
@@ -112,8 +113,9 @@ def create_select_option_action(elementid: int, target_value: str) -> Action:
         "element_id": elementid,
         "url": "",
         "fill_text": target_value,
-        "element_name": ""
+        "element_name": "",
     }
+
 
 @beartype
 def create_hover_action(elementid: int) -> Action:
@@ -122,8 +124,9 @@ def create_hover_action(elementid: int) -> Action:
         "element_id": elementid,
         "url": "",
         "fill_text": "",
-        "element_name": ""
+        "element_name": "",
     }
+
 
 @beartype
 def create_scroll_down_action(elementid: int) -> Action:
@@ -132,8 +135,9 @@ def create_scroll_down_action(elementid: int) -> Action:
         "element_id": elementid,
         "url": "",
         "fill_text": "",
-        "element_name": ""
+        "element_name": "",
     }
+
 
 @beartype
 def create_scroll_up_action(elementid: int) -> Action:
@@ -142,13 +146,16 @@ def create_scroll_up_action(elementid: int) -> Action:
         "element_id": elementid,
         "url": "",
         "fill_text": "",
-        "element_name": ""
+        "element_name": "",
     }
 
+
 @beartype
-def create_action(elementid: int, action_type: str, action_input: Optional[str]) -> Action:
-    logger.info('inside create_action')
-    logger.info(f'action_type: {action_type}, action_input: {action_input}')
+def create_action(
+    elementid: int, action_type: str, action_input: Optional[str]
+) -> Action:
+    logger.info("inside create_action")
+    logger.info(f"action_type: {action_type}, action_input: {action_input}")
 
     if action_type == "click":
         return create_click_action(elementid=elementid)
@@ -163,7 +170,9 @@ def create_action(elementid: int, action_type: str, action_input: Optional[str])
     elif action_type == "go_back":
         return create_go_back_action(elementid=elementid)
     elif action_type == "select_option":
-        return create_select_option_action(elementid=elementid, target_value=action_input)
+        return create_select_option_action(
+            elementid=elementid, target_value=action_input
+        )
     elif action_type == "hover":
         return create_hover_action(elementid=elementid)
     elif action_type == "scroll_down":
@@ -188,5 +197,5 @@ __all__ = [
     "create_hover_action",
     "create_scroll_down_action",
     "create_scroll_up_action",
-    "create_action"
+    "create_action",
 ]

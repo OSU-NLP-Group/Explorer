@@ -9,13 +9,14 @@ from evals.mind2web_live_eval.agent.Prompt import *
 from evals.mind2web_live_eval.agent.Environment.html_env.utils import MapTagNameList
 
 
-class StepEvaluator():
+class StepEvaluator:
     def __init__(self):
         pass
 
 
 class URLEvaluator(StepEvaluator):
-    '''URL Evaluation Scoring'''
+    """URL Evaluation Scoring"""
+
     @staticmethod
     def url_exact_match(input_url, reference_answer, key=False):
         if key:
@@ -28,8 +29,7 @@ class URLEvaluator(StepEvaluator):
         else:
             input_answer = input_url
         input_answer = unquote(input_answer)
-        result_score = MatchFunction.exact_match(
-            input_answer, reference_answer)
+        result_score = MatchFunction.exact_match(input_answer, reference_answer)
         # if result_score == 1:
         #     print("url_exactly_match:", input_answer)
         return result_score
@@ -53,8 +53,7 @@ class URLEvaluator(StepEvaluator):
             except:
                 input_answer = input_url
         input_answer = unquote(input_answer)
-        result_score = MatchFunction.include_match(
-            input_answer, reference_answer)
+        result_score = MatchFunction.include_match(input_answer, reference_answer)
         # print("score:", result_score, input_answer)
         return result_score
 
@@ -70,7 +69,9 @@ class URLEvaluator(StepEvaluator):
         else:
             input_answer = input_url
         input_answer = unquote(input_answer)
-        result_score = await MatchFunction.semantic_match(input_answer, semantic_method, args=args)
+        result_score = await MatchFunction.semantic_match(
+            input_answer, semantic_method, args=args
+        )
         return result_score
 
     @staticmethod
@@ -85,13 +86,24 @@ class URLEvaluator(StepEvaluator):
         else:
             input_answer = input_url
         input_answer = unquote(input_answer)
-        result_score = MatchFunction.semantic_match_sync(input_answer, semantic_method, args=args)
+        result_score = MatchFunction.semantic_match_sync(
+            input_answer, semantic_method, args=args
+        )
         return result_score
-    
+
+
 class ElementEvaluator(StepEvaluator):
-    '''Element evaluation and scoring'''
+    """Element evaluation and scoring"""
+
     @staticmethod
-    def path_exact_match(input_answer, reference_answer, method, html_content, input_netloc, reference_netloc):
+    def path_exact_match(
+        input_answer,
+        reference_answer,
+        method,
+        html_content,
+        input_netloc,
+        reference_netloc,
+    ):
         score = 0
         if method == "xpath":
             if reference_netloc != input_netloc:
@@ -125,7 +137,7 @@ class ElementEvaluator(StepEvaluator):
                 #       "input_netloc:", input_netloc)
                 return 0
             try:
-                soup = BeautifulSoup(html_content, 'html.parser')
+                soup = BeautifulSoup(html_content, "html.parser")
                 input_element = soup.select_one(input_answer)
                 reference_element = soup.select_one(reference_answer)
                 if (input_element is not None) and (reference_element is not None):
@@ -154,75 +166,84 @@ class ElementEvaluator(StepEvaluator):
     @staticmethod
     def path_included_match(input_answer, reference_answer, method, html_content):
         # TODO Add path inclusion matching method
-        result_score = MatchFunction.include_match(
-            input_answer, reference_answer)
+        result_score = MatchFunction.include_match(input_answer, reference_answer)
         return result_score
 
     @staticmethod
-    def element_value_exact_match(input_answer, reference_answer, input_netloc, reference_netloc):
+    def element_value_exact_match(
+        input_answer, reference_answer, input_netloc, reference_netloc
+    ):
         if reference_netloc != input_netloc:
             # print("reference_netloc:", reference_netloc,
             #       "input_netloc:", input_netloc)
             return 0
-        result_score = MatchFunction.exact_match(
-            input_answer, reference_answer)
+        result_score = MatchFunction.exact_match(input_answer, reference_answer)
         return result_score
 
     @staticmethod
-    def element_value_include_match(input_answer, reference_answer, input_netloc, reference_netloc):
+    def element_value_include_match(
+        input_answer, reference_answer, input_netloc, reference_netloc
+    ):
         if reference_netloc != input_netloc:
             # print("reference_netloc:", reference_netloc,
             #       "input_netloc:", input_netloc)
             return 0
-        result_score = MatchFunction.include_match(
-            input_answer, reference_answer)
+        result_score = MatchFunction.include_match(input_answer, reference_answer)
         return result_score
 
     @staticmethod
-    async def element_value_semantic_match(input_answer, semantic_method, input_netloc, reference_netloc=0, args=None):
-        if reference_netloc != input_netloc:
-            # print("reference_netloc:", reference_netloc,
-            #       "input_netloc:", input_netloc)
-            return 0
-        if len(input_answer) == 0:
-            return 0
-        result_score = await MatchFunction.semantic_match(input_answer, semantic_method, args=args)
-        return result_score
-
-    @staticmethod
-    def element_value_semantic_match_sync(input_answer, semantic_method, input_netloc, reference_netloc=0, args=None):
+    async def element_value_semantic_match(
+        input_answer, semantic_method, input_netloc, reference_netloc=0, args=None
+    ):
         if reference_netloc != input_netloc:
             # print("reference_netloc:", reference_netloc,
             #       "input_netloc:", input_netloc)
             return 0
         if len(input_answer) == 0:
             return 0
-        result_score = MatchFunction.semantic_match_sync(input_answer, semantic_method, args=args)
+        result_score = await MatchFunction.semantic_match(
+            input_answer, semantic_method, args=args
+        )
+        return result_score
+
+    @staticmethod
+    def element_value_semantic_match_sync(
+        input_answer, semantic_method, input_netloc, reference_netloc=0, args=None
+    ):
+        if reference_netloc != input_netloc:
+            # print("reference_netloc:", reference_netloc,
+            #       "input_netloc:", input_netloc)
+            return 0
+        if len(input_answer) == 0:
+            return 0
+        result_score = MatchFunction.semantic_match_sync(
+            input_answer, semantic_method, args=args
+        )
         return result_score
 
 
 class TextEvaluator(StepEvaluator):
-    '''Text evaluation and scoring'''
+    """Text evaluation and scoring"""
+
     @staticmethod
     def text_exact_match(input_answer, reference_answer):
-        result_score = MatchFunction.exact_match(
-            input_answer, reference_answer)
+        result_score = MatchFunction.exact_match(input_answer, reference_answer)
         return result_score
 
     @staticmethod
     def text_included_match(input_answer, reference_answer):
-        result_score = MatchFunction.include_match(
-            input_answer, reference_answer)
+        result_score = MatchFunction.include_match(input_answer, reference_answer)
         return result_score
 
     @staticmethod
     def text_semantic_match(input_answer, semantic_method):
         result_score = MatchFunction.semantic_match(
-            input_answer, semantic_method, semantic_method)
+            input_answer, semantic_method, semantic_method
+        )
         return result_score
 
 
-class MatchFunction():
+class MatchFunction:
     def __init__(self):
         pass
 
@@ -237,8 +258,9 @@ class MatchFunction():
     @staticmethod
     async def semantic_match(input_answer, semantic_method, args) -> float:
         # GPT35 = GPTGenerator(model="gpt-3.5-turbo")
-        semantic_request = SemanticMatchPromptConstructor(
-        ).construct(input_answer, semantic_method)
+        semantic_request = SemanticMatchPromptConstructor().construct(
+            input_answer, semantic_method
+        )
         score = None
         for i in range(3):
             try:
@@ -258,12 +280,13 @@ class MatchFunction():
             return round(score, 2)
         else:
             return score
-    
+
     @staticmethod
     def semantic_match_sync(input_answer, semantic_method, args) -> float:
         # GPT35 = GPTGenerator(model="gpt-3.5-turbo")
-        semantic_request = SemanticMatchPromptConstructor(
-        ).construct(input_answer, semantic_method)
+        semantic_request = SemanticMatchPromptConstructor().construct(
+            input_answer, semantic_method
+        )
         score = None
         for i in range(3):
             try:

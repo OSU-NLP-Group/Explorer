@@ -8,7 +8,9 @@ from .active_elements import ActiveElements
 
 import copy
 import logging
+
 logger = logging.getLogger(__name__)
+
 
 class HTMLTree:
     def __init__(self):
@@ -46,24 +48,23 @@ class HTMLTree:
         elementNode["siblingId"] = ""
         elementNode["twinId"] = ""
         elementNode["depth"] = 1
-        elementNode["data-unique-id"] = elementNode["attributes"].get(
-            "data-unique-id")
+        elementNode["data-unique-id"] = elementNode["attributes"].get("data-unique-id")
         # logger.info('attributes = {}'.format(elementNode["attributes"]))
 
         # elementNode["data-unique-id"] = elementNode["attributes"].get(
-            # "__elementid")
-        
-        elementNode["bbox"] = elementNode["attributes"].get(
-            "bbox")
-        elementNode["htmlContents"] = etree.tostring(
-            node, pretty_print=True).decode()
+        # "__elementid")
+
+        elementNode["bbox"] = elementNode["attributes"].get("bbox")
+        elementNode["htmlContents"] = etree.tostring(node, pretty_print=True).decode()
         return elementNode
 
     def build_mapping(self) -> None:
-        self.element2id = {value["nodeId"]: index for index,
-                           value in enumerate(self.elementNodes)}
-        self.id2rawNode = {str(index): value for value,
-                           index in self.rawNode2id.items()}
+        self.element2id = {
+            value["nodeId"]: index for index, value in enumerate(self.elementNodes)
+        }
+        self.id2rawNode = {
+            str(index): value for value, index in self.rawNode2id.items()
+        }
 
     def init_html_tree(self, root) -> None:
         node_queue = deque([root])
@@ -81,12 +82,12 @@ class HTMLTree:
                 node_queue.append(child)
         self.build_mapping()
         self.nodeCounts = node_id
-        self.valid = self.valid[:self.nodeCounts + 1]
+        self.valid = self.valid[: self.nodeCounts + 1]
 
     def get_selector_by_id(self, element_unique_id):
         nodeId = self.uniqueId2nodeId[element_unique_id]
         return self.get_selector_and_xpath(nodeId)[0]
-    
+
     def build_html_tree(self, root) -> None:
         node_queue = deque([root])
         root_id = self.rawNode2id[root]
@@ -104,7 +105,9 @@ class HTMLTree:
                 self.elementNodes[parent_id]["childIds"].append(child_id)
                 self.elementNodes[child_id]["parentId"] = parent_id
                 self.elementNodes[child_id]["twinId"] = twin_id
-                self.elementNodes[child_id]["depth"] = self.elementNodes[parent_id]["depth"] + 1
+                self.elementNodes[child_id]["depth"] = (
+                    self.elementNodes[parent_id]["depth"] + 1
+                )
                 self.elementNodes[child_id]["siblingId"] = sibling_id
                 node_queue.append(child)
                 sibling_id += 1
@@ -121,8 +124,7 @@ class HTMLTree:
             current_node = self.elementNodes[parentid]
             current_tag_name = current_node["tagName"]
             twinId = current_node["twinId"]
-            locator_str = "/" + current_tag_name + \
-                "[" + str(twinId) + "]" + locator_str
+            locator_str = "/" + current_tag_name + "[" + str(twinId) + "]" + locator_str
         parentid = current_node["parentId"]
         current_node = self.elementNodes[parentid]
         current_tag_name = current_node["tagName"]
@@ -134,29 +136,48 @@ class HTMLTree:
         while current_node["parentId"] != -1:
             tag_name = current_node["tagName"]
             siblingId = str(current_node["siblingId"])
-            if current_node["attributes"].get('id'):
+            if current_node["attributes"].get("id"):
                 current_selector = stringfy_selector(
-                    current_node["attributes"].get('id'))
+                    current_node["attributes"].get("id")
+                )
                 return "#" + current_selector + selector_str
             if len(self.elementNodes[current_node["parentId"]]["childIds"]) > 1:
                 uu_twin_node = True
                 uu_id = True
                 for childId in self.elementNodes[current_node["parentId"]]["childIds"]:
                     sib_node = self.elementNodes[childId]
-                    if sib_node["nodeId"] != current_node["nodeId"] and current_node["attributes"].get('class') and sib_node["attributes"].get("class") == current_node["attributes"].get('class'):
+                    if (
+                        sib_node["nodeId"] != current_node["nodeId"]
+                        and current_node["attributes"].get("class")
+                        and sib_node["attributes"].get("class")
+                        == current_node["attributes"].get("class")
+                    ):
                         uu_twin_node = False
-                    if sib_node["nodeId"] != current_node["nodeId"] and current_node["tagName"] == sib_node["tagName"]:
+                    if (
+                        sib_node["nodeId"] != current_node["nodeId"]
+                        and current_node["tagName"] == sib_node["tagName"]
+                    ):
                         uu_id = False
                 if uu_id:
                     selector_str = " > " + tag_name + selector_str
-                elif current_node["attributes"].get('class') and uu_twin_node is True:
+                elif current_node["attributes"].get("class") and uu_twin_node is True:
                     # fix div.IbBox.Whs\(n\)
-                    selector_str = " > " + tag_name + "." + \
-                        stringfy_selector(
-                            current_node["attributes"].get('class')) + selector_str
+                    selector_str = (
+                        " > "
+                        + tag_name
+                        + "."
+                        + stringfy_selector(current_node["attributes"].get("class"))
+                        + selector_str
+                    )
                 else:
-                    selector_str = " > " + tag_name + \
-                        ":nth-child(" + siblingId + ")" + selector_str
+                    selector_str = (
+                        " > "
+                        + tag_name
+                        + ":nth-child("
+                        + siblingId
+                        + ")"
+                        + selector_str
+                    )
             else:
                 selector_str = " > " + tag_name + selector_str
             current_node = self.elementNodes[current_node["parentId"]]
@@ -187,8 +208,7 @@ class HTMLTree:
         for nodeId in result:
             if self.is_valid(nodeId) or self.valid[nodeId] is True:
                 rawNode = self.id2rawNode[str(nodeId)]
-                html_contents = etree.tostring(
-                    rawNode, pretty_print=True).decode()
+                html_contents = etree.tostring(rawNode, pretty_print=True).decode()
                 self.pruningTreeNode[nodeId]["htmlContents"] = html_contents
                 self.valid[nodeId] = True
                 current_id = nodeId
@@ -234,13 +254,20 @@ class HTMLTree:
             if self.valid[node["nodeId"]] is True:
                 content_text = HTMLTree().process_element_contents(node)
                 if content_text != "":
-                    tag_name, tag_idx = self.get_tag_name(
-                        node)
+                    tag_name, tag_idx = self.get_tag_name(node)
                     if tag_name.lower() != "statictext":
                         num += 1
                         self.nodeDict[num] = tag_idx
-                        contents += "  " * (node["depth"]-1) + "[" + str(num) + "] " + tag_name + \
-                            " " + f"\'{content_text}\'" + "\n"
+                        contents += (
+                            "  " * (node["depth"] - 1)
+                            + "["
+                            + str(num)
+                            + "] "
+                            + tag_name
+                            + " "
+                            + f"'{content_text}'"
+                            + "\n"
+                        )
                         self.element_value[str(tag_idx)] = content_text
             children = []
             for child_id in node["childIds"]:
@@ -259,8 +286,7 @@ class HTMLTree:
                 content_text = HTMLTree().process_element_contents(node)
                 if content_text != "":
                     # tag_name = node["tagName"].upper()
-                    tag_name, tag_idx = self.get_tag_name(
-                        node)
+                    tag_name, tag_idx = self.get_tag_name(node)
                     actions = ['"click"']
                     if tag_name in ["textbox", "searchbox", "search", "input"]:
                         actions = ['"input_text"']
@@ -269,15 +295,23 @@ class HTMLTree:
                     if tag_name.lower() != "statictext":
                         num += 1
                         self.nodeDict[num] = tag_idx
-                        contents += "[" + str(num) + "] " + f"[{tag_name}]" + \
-                            " " + f"[{content_text}]" + f"[actions: {actions_str}]" + "\n"
+                        contents += (
+                            "["
+                            + str(num)
+                            + "] "
+                            + f"[{tag_name}]"
+                            + " "
+                            + f"[{content_text}]"
+                            + f"[actions: {actions_str}]"
+                            + "\n"
+                        )
                         self.element_value[str(tag_idx)] = content_text
             children = []
             for child_id in node["childIds"]:
                 children.append(self.pruningTreeNode[child_id])
             stack.extend(reversed(children))
         return contents
-    
+
     def build_visible_dom_tree(self, visible_rect_ids) -> str:
         root = self.pruningTreeNode[0]
         stack = [root]
@@ -288,21 +322,28 @@ class HTMLTree:
             if self.valid[node["nodeId"]] is True:
                 content_text = HTMLTree().process_element_contents(node)
                 if content_text != "":
-                    tag_name, tag_idx = self.get_tag_name(
-                        node)
+                    tag_name, tag_idx = self.get_tag_name(node)
                     if tag_name.lower() != "statictext":
                         num += 1
                         self.nodeDict[num] = tag_idx
                         if str(num) in visible_rect_ids:
-                            contents += "  " * (node["depth"]-1) + "[" + str(num) + "] " + tag_name + \
-                                " " + f"\'{content_text}\'" + "\n"
+                            contents += (
+                                "  " * (node["depth"] - 1)
+                                + "["
+                                + str(num)
+                                + "] "
+                                + tag_name
+                                + " "
+                                + f"'{content_text}'"
+                                + "\n"
+                            )
                         self.element_value[str(tag_idx)] = content_text
             children = []
             for child_id in node["childIds"]:
                 children.append(self.pruningTreeNode[child_id])
             stack.extend(reversed(children))
         return contents
-    
+
     def get_selector_and_xpath(self, idx: int) -> (str, str):  # type: ignore
         try:
             selector = self.get_selector(idx)
@@ -322,6 +363,4 @@ class HTMLTree:
         return self.element_value[str(element_id)]
 
 
-__all__ = [
-    "HTMLTree"
-]
+__all__ = ["HTMLTree"]

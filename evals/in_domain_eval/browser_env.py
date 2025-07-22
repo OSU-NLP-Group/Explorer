@@ -18,18 +18,22 @@ from .utils import (
 from typing import Any
 import threading
 import traceback
+
 # from .processors import ObservationHandler, ObservationMetadata
 from .processors import ObservationHandler, ObservationMetadata
 from PIL import Image, ImageDraw
 import logging
+
 
 class Tls(threading.local):
     def __init__(self) -> None:
         self.playwright = sync_playwright().start()
         # self.playwright = await async_playwright()
         # print("Create playwright instance in Thread", threading.current_thread().name)
+
     def close(self):
         self.playwright.stop()
+
 
 class ScriptBrowserEnv:
     """
@@ -39,6 +43,7 @@ class ScriptBrowserEnv:
     But in this prototype, we just support action space specified by Playwright script,
     and observation space is the html content of the page.
     """
+
     def __init__(self, args, browser_type: str, viewport_size: ViewportSize):
         self.args = args
         self.browser_type = browser_type
@@ -52,14 +57,14 @@ class ScriptBrowserEnv:
             self.tls = Tls()
         else:
             self.tls = None
-            
+
         self.reset_finished = False
         self.current_viewport_only = False
 
         self.image_observation_type = "image_som"
         self.text_observation_type = "image_som"  # type: ignore[assignment]
         self.main_observation_type = "image"
-        
+
         self.observation_handler = ObservationHandler(
             args,
             self.main_observation_type,
@@ -70,9 +75,7 @@ class ScriptBrowserEnv:
             captioning_fn=None,
         )
 
-        self.observation_space = (
-            self.observation_handler.get_observation_space()
-        )
+        self.observation_space = self.observation_handler.get_observation_space()
 
     @beartype
     def setup(self, url) -> None:
@@ -95,9 +98,7 @@ class ScriptBrowserEnv:
             self.page = None
             return
         page = self.context.new_page()
-        client = page.context.new_cdp_session(
-            page
-        )  # talk to chrome devtools
+        client = page.context.new_cdp_session(page)  # talk to chrome devtools
         page.client = client  # type: ignore
 
         try:
@@ -105,24 +106,28 @@ class ScriptBrowserEnv:
         except Exception as e:
             logging.error(traceback.format_exc())
             raise e
-        
+
         # set the first page as the current page
         self.page = self.context.pages[0]
         self.page.bring_to_front()
-    
+
     async def async_setup(self, url) -> None:
         async with async_playwright() as p:
             self.browser = await p.chromium.launch(headless=True, slow_mo=0)
             viewport_size = self.viewport_size.copy()
-            self.context = await self.browser.new_context(viewport=viewport_size, device_scale_factor=1)
+            self.context = await self.browser.new_context(
+                viewport=viewport_size, device_scale_factor=1
+            )
             if not url.startswith("http"):
                 self.page = None
                 return
             self.page = await self.context.new_page()
-            client = await self.page.context.new_cdp_session(self.page)  # talk to chrome devtools
+            client = await self.page.context.new_cdp_session(
+                self.page
+            )  # talk to chrome devtools
             self.page.client = client  # type: ignore
             await self.page.goto(url)
-    
+
     def close(self):
         if self.page is not None:
             self.page.close()
@@ -132,7 +137,7 @@ class ScriptBrowserEnv:
             self.browser.close()
 
             self.tls.close()
-    
+
     async def async_close(self):
         await self.page.close()
         # await self.context.close()
@@ -141,12 +146,16 @@ class ScriptBrowserEnv:
     def step(
         self, action
     ) -> tuple[dict[str, Observation], float, bool, bool, dict[str, Any]]:
-
         success = False
         fail_error = ""
-        
+
         # som_image_obs, parsed_html_str = self.observation_handler.action_processor.process(self.page, self.page.client, None)
-        som_image_obs, parsed_html_str = self.observation_handler.action_processor.process_new(self.page, self.page.client, None)
+        (
+            som_image_obs,
+            parsed_html_str,
+        ) = self.observation_handler.action_processor.process_new(
+            self.page, self.page.client, None
+        )
 
         try:
             self.page = execute_action(
@@ -163,8 +172,9 @@ class ScriptBrowserEnv:
             logging.error(traceback.format_exc())
 
         logging.info("Action executed successfully: {}".format(success))
-        
+
         return
+
 
 @beartype
 class ActionParsingError(Exception):

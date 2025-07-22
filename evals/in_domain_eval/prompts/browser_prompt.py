@@ -1,6 +1,6 @@
 BROWSER_ONE_STEP_EXAMPLES = [
-        (
-            """OBSERVATION:
+    (
+        """OBSERVATION:
             [1] [A] [About]
 [2] [A] [Store]
 [3] [A] [Gmail]
@@ -27,13 +27,14 @@ BROWSER_ONE_STEP_EXAMPLES = [
 [21] [DIV] [Settings]
 OBJECTIVE: type "why is palm oil bad for the environment?" into the search bar
 """,
-            "Let's think step-by-step. This page has a search box whose ID is [9]. I will type \"Why is palm oil bad for the environment?\" into the search box. In summary, the next action I will perform is ```type [9] [Why is palm oil bad for the environment?]```",
-            'src/webagent/prompts/browser_example1.png'),
-	]
+        'Let\'s think step-by-step. This page has a search box whose ID is [9]. I will type "Why is palm oil bad for the environment?" into the search box. In summary, the next action I will perform is ```type [9] [Why is palm oil bad for the environment?]```',
+        "src/webagent/prompts/browser_example1.png",
+    ),
+]
 
 BROWSER_DEEP_SEARCH_EXAMPLES = [
-        (
-            """OBSERVATION:
+    (
+        """OBSERVATION:
             [1] [A] [About]
 [2] [A] [Store]
 [3] [A] [Gmail]
@@ -60,10 +61,11 @@ BROWSER_DEEP_SEARCH_EXAMPLES = [
 [21] [DIV] [Settings]
 OBJECTIVE: Do a google search for \"Why is palm oil bad for environment?\"
 """,
-            "Let's think step-by-step. The objective tells me to do a google search for \"Why is palm oil bad for the environment?\". In summary, the next action I will perform is ```search_google [Why is palm oil bad for the environment?]```",
-            'src/webagent/prompts/browser_example1.png'),
-(
-            """OBSERVATION:
+        'Let\'s think step-by-step. The objective tells me to do a google search for "Why is palm oil bad for the environment?". In summary, the next action I will perform is ```search_google [Why is palm oil bad for the environment?]```',
+        "src/webagent/prompts/browser_example1.png",
+    ),
+    (
+        """OBSERVATION:
 [] [StaticText] [Accessibility Links]
 [1] [A] [Skip to main content]
 [2] [A] [Turn off continuous scrolling]
@@ -193,9 +195,10 @@ OBJECTIVE: Do a google search for \"Why is palm oil bad for environment?\"
 [] [StaticText] [1. Palm oil is cheap – and we're using way too much of it · 2. Palm oil is a major cause of forest destruction · 3. Palm oil is devastating the ...]
 OBJECTIVE: Click on the search result \"Challenges of Sustainable Palm Oil Production and?\".
 """,
-"Let's think step-by-step. The objective tells me to click on the search result \"Challenges of Sustainable Palm Oil Production and?\" on the page. I can see that the search result corresponds to element ID 20. In summary, the next action I will perform is ```click [20]```",
-'src/webagent/prompts/browser_example2.png'),
-	]
+        'Let\'s think step-by-step. The objective tells me to click on the search result "Challenges of Sustainable Palm Oil Production and?" on the page. I can see that the search result corresponds to element ID 20. In summary, the next action I will perform is ```click [20]```',
+        "src/webagent/prompts/browser_example2.png",
+    ),
+]
 
 '''
 BROWSER_RANDOM_WALKER_EXAMPLES = [
@@ -544,32 +547,37 @@ OBJECTIVE: Click on the search result \"Challenges of Sustainable Palm Oil Produ
 
 
 BROWSER_RANDOM_WALKER_EXAMPLES = [
-        (
-            """OBJECTIVE: type "why is palm oil bad for the environment?" into the search bar
+    (
+        """OBJECTIVE: type "why is palm oil bad for the environment?" into the search bar
 """,
-            "Let's think step-by-step. This page has a search box whose ID is [9]. I will type \"Why is palm oil bad for the environment?\" into the search box. In summary, the next action I will perform is ```type [9] [Why is palm oil bad for the environment?]```",
-            'src/webagent/prompts/browser_example1.png'),
-
-(
-            """OBJECTIVE: Click on the search result \"Challenges of Sustainable Palm Oil Production and?\".
+        'Let\'s think step-by-step. This page has a search box whose ID is [9]. I will type "Why is palm oil bad for the environment?" into the search box. In summary, the next action I will perform is ```type [9] [Why is palm oil bad for the environment?]```',
+        "src/webagent/prompts/browser_example1.png",
+    ),
+    (
+        """OBJECTIVE: Click on the search result \"Challenges of Sustainable Palm Oil Production and?\".
 """,
-"Let's think step-by-step. The objective tells me to click on the search result \"Challenges of Sustainable Palm Oil Production and?\" on the page. I can see that the search result corresponds to element ID 20. In summary, the next action I will perform is ```click [20]```",
-'src/webagent/prompts/browser_example2.png'),
+        'Let\'s think step-by-step. The objective tells me to click on the search result "Challenges of Sustainable Palm Oil Production and?" on the page. I can see that the search result corresponds to element ID 20. In summary, the next action I will perform is ```click [20]```',
+        "src/webagent/prompts/browser_example2.png",
+    ),
+    (
+        """OBJECTIVE: Click on the Computers tab.
+ """,
+        "Let's think step-by-step. The objective tells me to click on the Computers tab on the page. I can see that the Computers tab corresponds to element ID 38. In summary, the next action I will perform is ```click [38]```",
+        "src/webagent/prompts/browser_example3.png",
+    ),
+]
 
-("""OBJECTIVE: Click on the Computers tab.
- """ ,
- "Let's think step-by-step. The objective tells me to click on the Computers tab on the page. I can see that the Computers tab corresponds to element ID 38. In summary, the next action I will perform is ```click [38]```",
- 'src/webagent/prompts/browser_example3.png'),
-	]
-
-PARSE_CORRECTNESS_EXAMPLES = [("""```
+PARSE_CORRECTNESS_EXAMPLES = [
+    (
+        """```
 {"action": "click", "action_natural_language": "Click on the 'Accept' button", "idx": 305}
 {"action": "click", "action_natural_language": "Click on the 'Accept' button", "idx": 313}
 {"action": "click", "action_natural_language": "Click on the 'Accept' button", "idx": 319}
 {"action": "click", "action_natural_language": "Click on the 'Accept' button", "idx": 321}```""",
-"""{"action": "click", "action_natural_language": "Click on the 'Accept' button", "idx": 305}"""),
-
-("""{"action": "click", "action_natural_language": "click on the 'Accept' button", "idx": 27}
+        """{"action": "click", "action_natural_language": "Click on the 'Accept' button", "idx": 305}""",
+    ),
+    (
+        """{"action": "click", "action_natural_language": "click on the 'Accept' button", "idx": 27}
 
 "Accept" button is associated with accepting the cookie policy of the website.
 
@@ -578,5 +586,6 @@ PARSE_CORRECTNESS_EXAMPLES = [("""```
 "Accept" button is associated with accepting the cookie policy of the website.
 
 {"action": "click", "action_natural_language": "click on the 'Accept' button", "idx": 30}""",
-
-"""{"action": "click", "action_natural_language": "click on the 'Accept' button", "idx": 27}""")]
+        """{"action": "click", "action_natural_language": "click on the 'Accept' button", "idx": 27}""",
+    ),
+]

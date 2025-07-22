@@ -3,11 +3,15 @@ import logging
 
 from PIL import Image
 from .utils import pil_to_b64
-from web_traj_gen.prompts.web_random_walker_prompt import WEB_RANDOM_WALKER_EXAMPLES, WEB_RANDOM_WALKER_EXAMPLES_NEW
+from web_traj_gen.prompts.web_random_walker_prompt import (
+    WEB_RANDOM_WALKER_EXAMPLES,
+    WEB_RANDOM_WALKER_EXAMPLES_NEW,
+)
 from web_traj_gen.action_prediction_agent import call_gpt4v
 from web_traj_gen.utils import calc_num_tokens
 import tiktoken
 import os
+
 
 class TrajectoryVerifierAgent:
     def __init__(self, args):
@@ -29,28 +33,33 @@ There are three types of tasks:
 Thoughts: <your thoughts and reasoning process>
 Status: "success" or "failure"
 """
+
     # @profile
     def act(self, intent, last_actions, image_obs, last_page_md):
         # import pdb; pdb.set_trace()
         call_api_success = False
         try:
-            messages = self.create_request(intent, last_actions, image_obs, last_page_md)
-            
-            ans_1st_pass, call_api_success = call_gpt4v(self.args, messages, temperature=self.args.temp_summ_verf)
+            messages = self.create_request(
+                intent, last_actions, image_obs, last_page_md
+            )
+
+            ans_1st_pass, call_api_success = call_gpt4v(
+                self.args, messages, temperature=self.args.temp_summ_verf
+            )
 
         except Exception as e:
             result = None
             ans_1st_pass = ""
             finish_reason = ""
-            usage = {'completion_tokens': 0, 'prompt_tokens': 0, 'total_tokens': 0}
-            logging.info('error in trajectory verifier agent')
+            usage = {"completion_tokens": 0, "prompt_tokens": 0, "total_tokens": 0}
+            logging.info("error in trajectory verifier agent")
             logging.info(traceback.format_exc())
-        
+
         response = ans_1st_pass
 
         if not call_api_success:
-            response = 'API call failed after 3 tries'
-            logging.info('verifier API call failed after 3 tries')
+            response = "API call failed after 3 tries"
+            logging.info("verifier API call failed after 3 tries")
 
         return response
 
@@ -59,20 +68,32 @@ Status: "success" or "failure"
             prompt = f"""User Intent: {intent}\n Action History: {last_actions}\n The content of the last webpage in markdown format is given below \n{last_page_md}\n The snapshots of all webpages corresponding to the actions are shown in the images."""
         else:
             prompt = f"""User Intent: {intent}\n Action History: {last_actions}\n The content of the last webpage in markdown format is given below \n{last_page_md}\n The last snapshot of the web page is shown in the image."""
-        
-        messages = [{"role":"system","content":[{"type": "text", "text": self.sm}]}]
-        
-        user_msg = [{"type": "text", "text":prompt}]
+
+        messages = [{"role": "system", "content": [{"type": "text", "text": self.sm}]}]
+
+        user_msg = [{"type": "text", "text": prompt}]
 
         if isinstance(image_obs, list):
             # print('image_obs is a list')
             for screenshot_path in image_obs:
                 if os.path.exists(screenshot_path):
                     # print(screenshot_path)
-                    user_msg += [{"type": "image_url", "image_url": {"url": pil_to_b64(Image.open(screenshot_path))}}]
+                    user_msg += [
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": pil_to_b64(Image.open(screenshot_path))
+                            },
+                        }
+                    ]
         else:
-            user_msg.append({"type": "image_url", "image_url": {"url": pil_to_b64(Image.open(image_obs))}})
-        
-        messages.append({"role":"user","content":user_msg})
-        
+            user_msg.append(
+                {
+                    "type": "image_url",
+                    "image_url": {"url": pil_to_b64(Image.open(image_obs))},
+                }
+            )
+
+        messages.append({"role": "user", "content": user_msg})
+
         return messages

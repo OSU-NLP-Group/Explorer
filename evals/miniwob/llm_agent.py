@@ -29,15 +29,16 @@ import urllib3
 
 import tiktoken
 
-FEW_SHOT = 'miniwob/prompt/few-shot.json'
+FEW_SHOT = "miniwob/prompt/few-shot.json"
 
 urllib3.disable_warnings()
 
-CONTROLLER_ADDR = os.environ['CONTROLLER_ADDR'].split(',')
+CONTROLLER_ADDR = os.environ["CONTROLLER_ADDR"].split(",")
 
-BIG_PROMPT = '''
+BIG_PROMPT = """
 You are an agent embarking on a computer task. Each turn, you will be provided a task and an accessibility tree describing what is on the screen now, and you should either devise a overall plan to solve this task or to provide an instruction to execute. The plan could be multi-step, and each step should strictly corresponds to one instruction to execute. When devising a plan to execute, list the steps in order and precede each step with a numerical index starting from 1, e.g. "1." or "2.", and when executing, follow the plan strictly. When asked to provide an action to execute, refer strictly to the regular expression to ensure that your action is valid to execute.
-'''.strip()
+""".strip()
+
 
 def num_tokens_from_messages(messages, model="gpt-3.5-turbo-0613"):
     """Return the number of tokens used by a list of messages."""
@@ -53,17 +54,23 @@ def num_tokens_from_messages(messages, model="gpt-3.5-turbo-0613"):
         "gpt-4-32k-0314",
         "gpt-4-0613",
         "gpt-4-32k-0613",
-        }:
+    }:
         tokens_per_message = 3
         tokens_per_name = 1
     elif model == "gpt-3.5-turbo-0301":
-        tokens_per_message = 4  # every message follows <|start|>{role/name}\n{content}<|end|>\n
+        tokens_per_message = (
+            4  # every message follows <|start|>{role/name}\n{content}<|end|>\n
+        )
         tokens_per_name = -1  # if there's a name, the role is omitted
     elif "gpt-3.5-turbo" in model:
-        print("Warning: gpt-3.5-turbo may update over time. Returning num tokens assuming gpt-3.5-turbo-0613.")
+        print(
+            "Warning: gpt-3.5-turbo may update over time. Returning num tokens assuming gpt-3.5-turbo-0613."
+        )
         return num_tokens_from_messages(messages, model="gpt-3.5-turbo-0613")
     elif "gpt-4" in model:
-        print("Warning: gpt-4 may update over time. Returning num tokens assuming gpt-4-0613.")
+        print(
+            "Warning: gpt-4 may update over time. Returning num tokens assuming gpt-4-0613."
+        )
         return num_tokens_from_messages(messages, model="gpt-4-0613")
     else:
         raise NotImplementedError(
@@ -79,28 +86,27 @@ def num_tokens_from_messages(messages, model="gpt-3.5-turbo-0613"):
     num_tokens += 3  # every reply is primed with <|start|>assistant<|message|>
     return num_tokens
 
-def llm_gpt(prompt: list[dict[str, str]], model='gpt-3.5-turbo') -> str:
+
+def llm_gpt(prompt: list[dict[str, str]], model="gpt-3.5-turbo") -> str:
     api_key = os.environ.get("OPENAI_API_KEY")
     api_base = os.environ.get("OPENAI_API_BASE", "https://api.openai.com/")
     for _ in range(7):
         try:
             response = requests.post(
                 f"{api_base}/v1/chat/completions",
-                headers={
-                    'Authorization': f'Bearer {api_key}'
-                },
+                headers={"Authorization": f"Bearer {api_key}"},
                 json={
-                    'model': model,
-                    'messages': prompt,
-                    'temperature': 0.0,
-                    'max_tokens': 256,
+                    "model": model,
+                    "messages": prompt,
+                    "temperature": 0.0,
+                    "max_tokens": 256,
                 },
                 timeout=120,
             )
-            text = response.json()['choices'][0]['message']['content']
+            text = response.json()["choices"][0]["message"]["content"]
             return text.strip()
         # if timeout or connection error, retry
-        except Timeout: 
+        except Timeout:
             print("Timeout, retrying...")
         except ConnectionError:
             print("Connection error, retrying...")
@@ -109,7 +115,7 @@ def llm_gpt(prompt: list[dict[str, str]], model='gpt-3.5-turbo') -> str:
             try:
                 print(response)
                 print(response.text)
-                print('===REQUEST===')
+                print("===REQUEST===")
                 print(response.request)
                 print(response.request.body)
             except:
@@ -118,11 +124,13 @@ def llm_gpt(prompt: list[dict[str, str]], model='gpt-3.5-turbo') -> str:
     else:
         raise Exception("Timeout after 7 retries.")
 
+
 trajs = []
 
+
 def get_prompt(conv: Conversation) -> str:
-    if conv.name == 'openchat':
-        ret = ''
+    if conv.name == "openchat":
+        ret = ""
         for role, message in conv.messages:
             if message:
                 ret += role + ": " + message + conv.sep
@@ -131,6 +139,7 @@ def get_prompt(conv: Conversation) -> str:
         return ret
     else:
         return conv.get_prompt()
+
 
 class LLMAgent:
     def __init__(
@@ -191,8 +200,8 @@ class LLMAgent:
             self.model = "davinci"
         elif self.llm == "davinci2":
             self.model = "text-davinci-002"
-        elif 'llama' in self.llm or 'openchat' in self.llm or 'vicuna' in self.llm:
-            self.model = 'tgi'
+        elif "llama" in self.llm or "openchat" in self.llm or "vicuna" in self.llm:
+            self.model = "tgi"
         else:
             raise NotImplemented
 
@@ -209,7 +218,7 @@ class LLMAgent:
                     f"{self.history_name}_fail.txt"
                 )
 
-        with (self.file_path.parent / f'{self.file_path.name}.json').open('w') as f:
+        with (self.file_path.parent / f"{self.file_path.name}.json").open("w") as f:
             json.dump(trajs, f)
 
         os.rename(self.file_path, new_file_path)
@@ -367,21 +376,37 @@ class LLMAgent:
         while True:
             try:
                 if self.llm == "chatgpt" or self.llm == "gpt4":
-                    conv = get_conversation_template('gpt-3.5-turbo')
-                    conv.set_system_message("You are an autoregressive language model that completes user's sentences. You should not conversate with user.")
+                    conv = get_conversation_template("gpt-3.5-turbo")
+                    conv.set_system_message(
+                        "You are an autoregressive language model that completes user's sentences. You should not conversate with user."
+                    )
                     with open(FEW_SHOT) as f:
                         examples = json.load(f)
                     conv.append_message(conv.roles[0], BIG_PROMPT)
-                    conv.append_message(conv.roles[1], 'Ok.')
-                    conv.append_message(conv.roles[0], examples[0]['conversations'][0]['value'])
-                    conv.append_message(conv.roles[1], examples[0]['conversations'][1]['value'])
-                    conv.append_message(conv.roles[0], "The previous task has ended, and I'll start a new task now.\n\n" + examples[5]['conversations'][0]['value'])
-                    conv.append_message(conv.roles[1], examples[5]['conversations'][1]['value'])
-                    conv.append_message(conv.roles[0], "The previous task has ended, and I'll start a new task now.\n\n" + pt)
+                    conv.append_message(conv.roles[1], "Ok.")
+                    conv.append_message(
+                        conv.roles[0], examples[0]["conversations"][0]["value"]
+                    )
+                    conv.append_message(
+                        conv.roles[1], examples[0]["conversations"][1]["value"]
+                    )
+                    conv.append_message(
+                        conv.roles[0],
+                        "The previous task has ended, and I'll start a new task now.\n\n"
+                        + examples[5]["conversations"][0]["value"],
+                    )
+                    conv.append_message(
+                        conv.roles[1], examples[5]["conversations"][1]["value"]
+                    )
+                    conv.append_message(
+                        conv.roles[0],
+                        "The previous task has ended, and I'll start a new task now.\n\n"
+                        + pt,
+                    )
                     conv.append_message(conv.roles[1], None)
                     time.sleep(random.random())
 
-                    model = 'gpt-4' if self.llm == 'gpt4' else 'gpt-3.5-turbo'
+                    model = "gpt-4" if self.llm == "gpt4" else "gpt-3.5-turbo"
 
                     prompt = conv.to_openai_api_messages()
                     if num_tokens_from_messages(prompt, model) > 4096:
@@ -391,13 +416,19 @@ class LLMAgent:
                     prompt = conv.to_openai_api_messages()
 
                     message = llm_gpt(conv.to_openai_api_messages())
-                elif 'llama' in self.llm or 'openchat' in self.llm or 'vicuna' in self.llm:
-                    if 'vicuna' in self.llm:
-                        conv = get_conversation_template('vicuna')
-                    elif 'llama' in self.llm:
-                        conv = get_conversation_template('llama-2')
-                        conv.set_system_message("You are a helpful, respectful and honest assistant.")
-                    elif 'openchat' in self.llm:
+                elif (
+                    "llama" in self.llm
+                    or "openchat" in self.llm
+                    or "vicuna" in self.llm
+                ):
+                    if "vicuna" in self.llm:
+                        conv = get_conversation_template("vicuna")
+                    elif "llama" in self.llm:
+                        conv = get_conversation_template("llama-2")
+                        conv.set_system_message(
+                            "You are a helpful, respectful and honest assistant."
+                        )
+                    elif "openchat" in self.llm:
                         conv = Conversation(
                             name="openchat",
                             roles=("GPT4 User", "GPT4 Assistant"),
@@ -409,38 +440,52 @@ class LLMAgent:
                     with open(FEW_SHOT) as f:
                         examples = json.load(f)
                     conv.append_message(conv.roles[0], BIG_PROMPT)
-                    conv.append_message(conv.roles[1], 'Ok.')
-                    conv.append_message(conv.roles[0], examples[0]['conversations'][0]['value'])
-                    conv.append_message(conv.roles[1], examples[0]['conversations'][1]['value'])
-                    conv.append_message(conv.roles[0], "The previous task has ended, and I'll start a new task now.\n\n" + examples[5]['conversations'][0]['value'])
-                    conv.append_message(conv.roles[1], examples[5]['conversations'][1]['value'])
+                    conv.append_message(conv.roles[1], "Ok.")
+                    conv.append_message(
+                        conv.roles[0], examples[0]["conversations"][0]["value"]
+                    )
+                    conv.append_message(
+                        conv.roles[1], examples[0]["conversations"][1]["value"]
+                    )
+                    conv.append_message(
+                        conv.roles[0],
+                        "The previous task has ended, and I'll start a new task now.\n\n"
+                        + examples[5]["conversations"][0]["value"],
+                    )
+                    conv.append_message(
+                        conv.roles[1], examples[5]["conversations"][1]["value"]
+                    )
 
-                    conv.append_message(conv.roles[0], "The previous task has ended, and I'll start a new task now.\n\n" + pt)
+                    conv.append_message(
+                        conv.roles[0],
+                        "The previous task has ended, and I'll start a new task now.\n\n"
+                        + pt,
+                    )
                     conv.append_message(conv.roles[1], None)
                     prompt = get_prompt(conv)
-                    if self.model == 'tgi':
+                    if self.model == "tgi":
                         data = {
                             "inputs": prompt,
                             "parameters": {
                                 "max_new_tokens": 512,
                                 "do_sample": False,
-                                'truncate': 4000,
-                            }
+                                "truncate": 4000,
+                            },
                         }
                         for _ in range(3):
                             try:
                                 response = requests.post(
                                     random.choice(CONTROLLER_ADDR) + "/generate",
-                                    headers = {'Content-Type': 'application/json'},
+                                    headers={"Content-Type": "application/json"},
                                     json=data,
                                     timeout=120,
                                 )
                                 text = response.json().generated_text
                                 # print(text)
-                                message = text.split('[INST]')[0].strip()
+                                message = text.split("[INST]")[0].strip()
                                 break
                             # if timeout or connection error, retry
-                            except Timeout: 
+                            except Timeout:
                                 print("Timeout, retrying...")
                             except ConnectionError:
                                 print("Connection error, retrying...")
@@ -449,31 +494,33 @@ class LLMAgent:
                             raise Exception("Timeout after 3 retries.")
                     else:
                         gen_params = {
-                            'model': self.model,
-                            'prompt': prompt,
-                            'temperature': 0,
-                            'max_new_tokens': 512,
-                            'stop': conv.stop_str,
-                            'sotp_token_ids': conv.stop_token_ids,
-                            'echo': False,
+                            "model": self.model,
+                            "prompt": prompt,
+                            "temperature": 0,
+                            "max_new_tokens": 512,
+                            "stop": conv.stop_str,
+                            "sotp_token_ids": conv.stop_token_ids,
+                            "echo": False,
                         }
                         for _ in range(3):
                             try:
                                 response = requests.post(
                                     CONTROLLER_ADDR + "/worker_generate_stream",
-                                    headers = {"User-Agent": "FastChat Client"},
+                                    headers={"User-Agent": "FastChat Client"},
                                     json=gen_params,
                                     stream=True,
                                     timeout=120,
                                 )
                                 text = ""
-                                for line in response.iter_lines(decode_unicode=False, delimiter=b"\0"):
+                                for line in response.iter_lines(
+                                    decode_unicode=False, delimiter=b"\0"
+                                ):
                                     if line:
                                         text = json.loads(line)["text"]
                                 message = text
                                 break
                             # if timeout or connection error, retry
-                            except Timeout: 
+                            except Timeout:
                                 print("Timeout, retrying...")
                             except ConnectionError:
                                 print("Connection error, retrying...")
@@ -482,13 +529,15 @@ class LLMAgent:
                             raise Exception("Timeout after 3 retries.")
                 else:
                     time.sleep(1)
-                    response = client.completions.create(model=self.model,
-                    prompt=pt,
-                    temperature=0,
-                    max_tokens=256,
-                    top_p=1,
-                    frequency_penalty=0.0,
-                    presence_penalty=0.0)
+                    response = client.completions.create(
+                        model=self.model,
+                        prompt=pt,
+                        temperature=0,
+                        max_tokens=256,
+                        top_p=1,
+                        frequency_penalty=0.0,
+                        presence_penalty=0.0,
+                    )
                     message = response.choices[0].text
             except Exception as e:
                 print(e)
@@ -499,20 +548,19 @@ class LLMAgent:
                 if message:
                     break
 
-        trajs.append({
-            'id': f'{self.env}_{len(trajs)}',
-            'conversations': [
-                {
-                    'from': 'human',
-                    'value': pt_orig,
-                    # 'value_processed': prompt,
-                },
-                {
-                    'from': 'gpt',
-                    'value': message
-                },
-            ]
-        })
+        trajs.append(
+            {
+                "id": f"{self.env}_{len(trajs)}",
+                "conversations": [
+                    {
+                        "from": "human",
+                        "value": pt_orig,
+                        # 'value_processed': prompt,
+                    },
+                    {"from": "gpt", "value": message},
+                ],
+            }
+        )
 
         print(message)
         return message
@@ -580,7 +628,7 @@ class LLMAgent:
         pt = "\n\n"
         pt += "Here is a plan you are following now.\n"
 
-        pt += f'{self.current_plan}'
+        pt += f"{self.current_plan}"
 
         pt += "\n\n"
 

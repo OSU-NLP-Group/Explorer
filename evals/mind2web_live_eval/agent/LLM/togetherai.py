@@ -13,11 +13,12 @@ class TogetherAIGenerator:
         self.model = model
         self.client = AsyncOpenAI(
             api_key=os.environ.get("TOGETHER_API_KEY"),
-            base_url="https://api.together.xyz/v1"
+            base_url="https://api.together.xyz/v1",
         )
 
-    async def request(self, messages: list = None, max_tokens: int = 500, temperature: float = 0.7
-                      ) -> (str, str):
+    async def request(
+        self, messages: list = None, max_tokens: int = 500, temperature: float = 0.7
+    ) -> (str, str):
         try:
             openai_response = await self.chat(messages)
             return openai_response, ""
@@ -27,10 +28,10 @@ class TogetherAIGenerator:
 
     async def chat(self, messages, max_tokens=512, temperature=0.7):
         data = {
-            'model': self.model,
-            'max_tokens': max_tokens,
-            'temperature': temperature,
-            'messages': messages,
+            "model": self.model,
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+            "messages": messages,
         }
 
         response = await self.client.chat.completions.create(**data)

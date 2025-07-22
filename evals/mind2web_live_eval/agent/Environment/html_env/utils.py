@@ -15,6 +15,7 @@ import os
 from multiprocessing import Pool
 import re
 
+
 @dataclass
 class DetachedPage:
     url: str
@@ -22,16 +23,17 @@ class DetachedPage:
 
 
 class ElementNode(TypedDict):
-    nodeId: int                 # Element ID
-    childIds: List[int]         # List of child element IDs
-    siblingId: int              # Sibling element ranking
-    twinId: int                 # Same tag element ranking
-    tagName: str                # Element
-    attributes: dict            # Element attributes
-    text: str                   # Text attribute
-    parentId: int               # Parent element
-    htmlContents: str           # All information of the element
-    depth: int                  # Depth
+    nodeId: int  # Element ID
+    childIds: List[int]  # List of child element IDs
+    siblingId: int  # Sibling element ranking
+    twinId: int  # Same tag element ranking
+    tagName: str  # Element
+    attributes: dict  # Element attributes
+    text: str  # Text attribute
+    parentId: int  # Parent element
+    htmlContents: str  # All information of the element
+    depth: int  # Depth
+
 
 TagNameList = [
     "button",
@@ -59,65 +61,44 @@ TagNameList = [
     "filter-chip",
     "sup",
     "select-label",
-    "optgroup"
+    "optgroup",
 ]
 
-MapTagNameList = [
-    "span",
-    "h1",
-    "h2",
-    "h3",
-    "h4",
-    "h5",
-    "h6",
-    "div",
-    "li",
-    "ul",
-    "p"
-]
+MapTagNameList = ["span", "h1", "h2", "h3", "h4", "h5", "h6", "div", "li", "ul", "p"]
 
 DelTagNameList = [
-    "script",           # del
-    "noscript",         # del
-    "style",            # del
-    "link",             # del
-    "meta",             # del
+    "script",  # del
+    "noscript",  # del
+    "style",  # del
+    "link",  # del
+    "meta",  # del
 ]
 
 
-ConditionTagNameList = [
-    'span',
-    'td',
-    'th',
-    'tr',
-    'li',
-    'div',
-    'label',
-    'filter-chip'
-]
+ConditionTagNameList = ["span", "td", "th", "tr", "li", "div", "label", "filter-chip"]
 
 
-TypeList = [
-    "submit"
-]
+TypeList = ["submit"]
 
 
 def stringfy_selector(string: str):
-    special_chars = '#.>+~[]():*^$|=@\''
+    special_chars = "#.>+~[]():*^$|=@'"
     string = string.replace("\t", " ").replace("\n", " ").lstrip().rstrip()
-    string = ' '.join(string.split())
+    string = " ".join(string.split())
     for char in special_chars:
-        string = string.replace(char, '\\' + char)
-    string = '.'.join(string.split(' '))
+        string = string.replace(char, "\\" + char)
+    string = ".".join(string.split(" "))
     if string[0].isdigit():
         string = f"\\{'{:X}'.format(ord(string[0]))}" + " " + string[1:]
     return string
 
+
 def stringfy_value(string):
-    special_chars = '#.>+~[]():*^$|=@\''
+    special_chars = "#.>+~[]():*^$|=@'"
     for char in special_chars:
-        string = string.replace(char, '\\' + char)
+        string = string.replace(char, "\\" + char)
     return rf"{string}"
+
 
 __all__ = [
     "ElementNode",
@@ -126,9 +107,8 @@ __all__ = [
     "ConditionTagNameList",
     "TypeList",
     "stringfy_selector",
-    "stringfy_value"
+    "stringfy_value",
 ]
-
 
 
 @dataclass
@@ -213,16 +193,17 @@ from enum import IntEnum
 
 
 class ElementNode(TypedDict):
-    nodeId: int                 # Element ID
-    childIds: List[int]         # List of child element IDs
-    siblingId: int              # Sibling element ranking
-    twinId: int                 # Same tag element ranking
-    tagName: str                # Element
-    attributes: dict            # Element attributes
-    text: str                   # Text attribute
-    parentId: int               # Parent element
-    htmlContents: str           # All information of the element
-    depth: int                  # Depth
+    nodeId: int  # Element ID
+    childIds: List[int]  # List of child element IDs
+    siblingId: int  # Sibling element ranking
+    twinId: int  # Same tag element ranking
+    tagName: str  # Element
+    attributes: dict  # Element attributes
+    text: str  # Text attribute
+    parentId: int  # Parent element
+    htmlContents: str  # All information of the element
+    depth: int  # Depth
+
 
 TagNameList = [
     "button",
@@ -250,62 +231,40 @@ TagNameList = [
     "filter-chip",
     "sup",
     "select-label",
-    "optgroup"
+    "optgroup",
 ]
 
-MapTagNameList = [
-    "span",
-    "h1",
-    "h2",
-    "h3",
-    "h4",
-    "h5",
-    "h6",
-    "div",
-    "li",
-    "ul",
-    "p"
-]
+MapTagNameList = ["span", "h1", "h2", "h3", "h4", "h5", "h6", "div", "li", "ul", "p"]
 
 DelTagNameList = [
-    "script",           # del
-    "noscript",         # del
-    "style",            # del
-    "link",             # del
-    "meta",             # del
+    "script",  # del
+    "noscript",  # del
+    "style",  # del
+    "link",  # del
+    "meta",  # del
 ]
 
 
-ConditionTagNameList = [
-    'span',
-    'td',
-    'th',
-    'tr',
-    'li',
-    'div',
-    'label',
-    'filter-chip'
-]
+ConditionTagNameList = ["span", "td", "th", "tr", "li", "div", "label", "filter-chip"]
 
 
-TypeList = [
-    "submit"
-]
+TypeList = ["submit"]
 
 
 def stringfy_selector(string: str):
-    special_chars = '#.>+~[]():*^$|=@\''
+    special_chars = "#.>+~[]():*^$|=@'"
     string = string.replace("\t", " ").replace("\n", " ").lstrip().rstrip()
-    string = ' '.join(string.split())
+    string = " ".join(string.split())
     for char in special_chars:
-        string = string.replace(char, '\\' + char)
-    string = '.'.join(string.split(' '))
+        string = string.replace(char, "\\" + char)
+    string = ".".join(string.split(" "))
     if string[0].isdigit():
         string = f"\\{'{:X}'.format(ord(string[0]))}" + " " + string[1:]
     return string
 
+
 def stringfy_value(string):
-    special_chars = '#.>+~[]():*^$|=@\''
+    special_chars = "#.>+~[]():*^$|=@'"
     for char in special_chars:
-        string = string.replace(char, '\\' + char)
+        string = string.replace(char, "\\" + char)
     return rf"{string}"

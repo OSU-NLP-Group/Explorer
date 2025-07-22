@@ -17,13 +17,13 @@ def process_content(content, remaining_tokens):
         truncated_content = []
         used_tokens = 0
         for item in content:
-            if item['type'] == 'text':
-                item_text = item['text']
+            if item["type"] == "text":
+                item_text = item["text"]
                 item_tokens = estimate_tokens(item_text)
                 if used_tokens + item_tokens > remaining_tokens:
                     max_length = int((remaining_tokens - used_tokens) * 4.8)
                     truncated_text = truncate_text(item_text, max_length)
-                    truncated_content.append({'type': 'text', 'text': truncated_text})
+                    truncated_content.append({"type": "text", "text": truncated_text})
                     used_tokens += estimate_tokens(truncated_text)
                     break
                 truncated_content.append(item)
@@ -51,15 +51,20 @@ def truncate_messages_based_on_estimated_tokens(messages, max_tokens):
     truncated_messages = []
 
     for message in messages:
-        content = message['content']
-        processed_content, used_tokens = process_content(content, max_tokens - current_tokens)
+        content = message["content"]
+        processed_content, used_tokens = process_content(
+            content, max_tokens - current_tokens
+        )
         if used_tokens > 0:
-            truncated_messages.append({'role': message['role'], 'content': processed_content})
+            truncated_messages.append(
+                {"role": message["role"], "content": processed_content}
+            )
             current_tokens += used_tokens
         if current_tokens >= max_tokens:
             break
 
     return truncated_messages
+
 
 # Usage example
 # messages = [

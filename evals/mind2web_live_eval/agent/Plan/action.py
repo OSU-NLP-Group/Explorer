@@ -17,7 +17,7 @@ class ResponseError(Exception):
         super().__init__(self.message)
 
 
-class ActionParser():
+class ActionParser:
     def __init__(self):
         pass
 
@@ -35,11 +35,9 @@ class ActionParser():
             except:
                 result_action = self.parse_action_with_re(message)
         if not result_action:
-            raise ResponseError(
-                "Response is an invalid JSON blob or Empty!")
-        elif result_action and result_action.get("action") == '':
-            raise ResponseError(
-                "Response action is Empty, Please try again.")
+            raise ResponseError("Response is an invalid JSON blob or Empty!")
+        elif result_action and result_action.get("action") == "":
+            raise ResponseError("Response action is Empty, Please try again.")
         result_thought = result_action.get("thought")
         return result_thought, result_action
 
@@ -52,17 +50,17 @@ class ActionParser():
             action_input = str(match.group(3))
             element_id = str(match.group(4))
             description = str(match.group(5))
-            thought = re.sub(r'\s+', ' ', thought).strip()
-            action = re.sub(r'\s+', ' ', action).strip()
-            action_input = re.sub(r'\s+', ' ', action_input).strip()
-            element_id = re.sub(r'\s+', ' ', element_id).strip()
-            description = re.sub(r'\s+', ' ', description).strip()
+            thought = re.sub(r"\s+", " ", thought).strip()
+            action = re.sub(r"\s+", " ", action).strip()
+            action_input = re.sub(r"\s+", " ", action_input).strip()
+            element_id = re.sub(r"\s+", " ", element_id).strip()
+            description = re.sub(r"\s+", " ", description).strip()
             result_dict = {
                 "thought": thought,
                 "action": action,
                 "action_input": action_input,
                 "element_id": element_id,
-                "description": description
+                "description": description,
             }
             return result_dict
 
@@ -89,8 +87,9 @@ class ActionParser():
     def extract_score_and_description(self, message) -> dict:
         result_score = "null"
         try:
-            result_score = re.findall(
-                "score:(.*?)description:", message, re.S)[0].strip()
+            result_score = re.findall("score:(.*?)description:", message, re.S)[
+                0
+            ].strip()
         except:
             try:
                 result_score = message.split("description:")[0].strip()
@@ -113,4 +112,4 @@ class ActionParser():
         if match:
             return match.group(1)
         else:
-            return '-1'
+            return "-1"

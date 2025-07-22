@@ -20,10 +20,10 @@ def add_set_of_mark(screenshot, ROIs):
 
 def _add_set_of_mark(screenshot, ROIs):
     visible_rects = list()
-    rects_above = list() # Scroll up to see
-    rects_below = list() # Scroll down to see
+    rects_above = list()  # Scroll up to see
+    rects_below = list()  # Scroll down to see
 
-    fnt = ImageFont.load_default() # 14
+    fnt = ImageFont.load_default()  # 14
     base = screenshot.convert("L").convert("RGBA")
     overlay = Image.new("RGBA", base.size)
 
@@ -36,7 +36,10 @@ def _add_set_of_mark(screenshot, ROIs):
             if rect["width"] * rect["height"] == 0:
                 continue
 
-            mid = ((rect["right"] + rect["left"]) / 2.0, (rect["top"] + rect["bottom"]) / 2.0)
+            mid = (
+                (rect["right"] + rect["left"]) / 2.0,
+                (rect["top"] + rect["bottom"]) / 2.0,
+            )
 
             if 0 <= mid[0] and mid[0] < base.size[0]:
                 if mid[1] < 0:
@@ -80,11 +83,20 @@ def _draw_roi(draw, idx, font, rect):
 
     draw.rectangle(roi, outline=color, fill=(color[0], color[1], color[2], 48), width=2)
 
-    bbox = draw.textbbox(label_location, str(idx), font=font, anchor=label_anchor, align="center")
+    bbox = draw.textbbox(
+        label_location, str(idx), font=font, anchor=label_anchor, align="center"
+    )
     bbox = (bbox[0] - 3, bbox[1] - 3, bbox[2] + 3, bbox[3] + 3)
     draw.rectangle(bbox, fill=color)
 
-    draw.text(label_location, str(idx), fill=text_color, font=font, anchor=label_anchor, align="center")
+    draw.text(
+        label_location,
+        str(idx),
+        fill=text_color,
+        font=font,
+        anchor=label_anchor,
+        align="center",
+    )
 
 
 def _color(identifier):

@@ -7,6 +7,7 @@ from in_domain_eval.utils import call_gpt4v
 import tiktoken
 from in_domain_eval.prompts.browser_prompt import PARSE_CORRECTNESS_EXAMPLES
 
+
 class ParseCorrectorAgent:
     def __init__(self, args):
         self.args = args
@@ -23,35 +24,34 @@ The output should be in below format:
 *OUTPUT FORMAT*: 
 {"action": <ACTION>:str, "action_natural_language": <ACTION_IN_NATURAL_LANGUAGE>:str, "idx": <element_idx chosen from the second screen>:int, "value": <the text to enter>:str}
 """
+
     # @profile
     def act(self, input_str):
         # import pdb; pdb.set_trace()
         try:
             messages = self.create_request(input_str)
-            
-            ans_1st_pass, _ = call_gpt4v(self.args, messages)
 
+            ans_1st_pass, _ = call_gpt4v(self.args, messages)
 
         except Exception as e:
             result = None
             ans_1st_pass = ""
             finish_reason = ""
-            usage = {'completion_tokens': 0, 'prompt_tokens': 0, 'total_tokens': 0}
-            logging.info('error in trajectory verifier agent')
+            usage = {"completion_tokens": 0, "prompt_tokens": 0, "total_tokens": 0}
+            logging.info("error in trajectory verifier agent")
             # logging.info(traceback.format_exc())
-        
+
         response = ans_1st_pass
         return response
 
     def create_request(self, input_str):
-
         prompt = f"""Input string: {input_str}"""
-        
-        messages = [{"role":"system","content":[{"type": "text", "text": self.sm}]}]
+
+        messages = [{"role": "system", "content": [{"type": "text", "text": self.sm}]}]
 
         examples = PARSE_CORRECTNESS_EXAMPLES
 
-        for (x, y) in examples:
+        for x, y in examples:
             messages.append(
                 {
                     "role": "system",
@@ -66,6 +66,6 @@ The output should be in below format:
                     "content": [{"type": "text", "text": y}],
                 }
             )
-        messages.append({"role":"user","content":[{"type": "text", "text":prompt}]})
-        
+        messages.append({"role": "user", "content": [{"type": "text", "text": prompt}]})
+
         return messages

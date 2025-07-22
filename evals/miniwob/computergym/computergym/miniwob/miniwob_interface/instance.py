@@ -180,7 +180,7 @@ class MiniWoBInstance(Thread):
                     9000, 30 + self.index * (self.window_height + 30)
                 )
             )
-        print('options = ', vars(options))
+        print("options = ", vars(options))
 
         self.driver = webdriver.Chrome(options=options)
         # chrome_binary_path = "/home/pahuja.9/research_nfs/web_traj_gen/chrome/chrome-linux64/chrome"

@@ -1,5 +1,4 @@
 class OurPrompts:
-
     planning_prompt_system = """You are an expert at completing instructions on Webpage screens. 
                You will be presented with a screenshot image with some numeric tags.
                If you decide to click somewhere, you should choose the numeric element idx that is the closest to the location you want to click.  
@@ -23,12 +22,10 @@ You have to follow the instructions or notes:
     3. When the input image is blank.
 """
 
-    
-    planning_prompt_user = '''Here is the screenshot image: <|image_1|>\n
+    planning_prompt_user = """Here is the screenshot image: <|image_1|>\n
       The instruction is to {}. 
       History actions:
       {}\n\n
       Here is the screen information:
       {}\n\n
-      Think about what you need to do with current screen, and output the action in the required format in the end. '''
-    
+      Think about what you need to do with current screen, and output the action in the required format in the end. """

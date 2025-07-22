@@ -245,7 +245,7 @@ class MiniWoBElementClickXpath(MiniWoBAction):
                     element.send_keys(Keys.ENTER)
                     action_performed = True
                     break
-            
+
             if action_performed:
                 break
 

@@ -3,11 +3,8 @@ from playwright.async_api import async_playwright
 import asyncio
 
 
-
 async def main():
-
     async with async_playwright() as playwright:
-
         # configure browser with proxy
 
         browser = await playwright.chromium.launch(
@@ -21,20 +18,15 @@ async def main():
 
         page = await context.new_page()
 
-
-
         await page.goto("https://httpbin.io/ip")
 
         html_content = await page.content()
 
         print(html_content)
 
-
-
         await context.close()
 
         await browser.close()
-
 
 
 asyncio.run(main())

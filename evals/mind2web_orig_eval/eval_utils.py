@@ -8,13 +8,10 @@ from bs4 import BeautifulSoup
 import logging
 
 
-
-
 # calculate action f1 following mind2web
 def calculate_f1(pred, label):
-    
-    logging.info('pred = {}'.format(pred))
-    logging.info('label = {}'.format(label))
+    logging.info("pred = {}".format(pred))
+    logging.info("label = {}".format(label))
 
     pred = set(pred.strip().split())
     label = set(label.strip().split())

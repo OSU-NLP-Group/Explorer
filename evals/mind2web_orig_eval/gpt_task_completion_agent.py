@@ -6,11 +6,12 @@ from .utils import pil_to_b64
 from in_domain_eval.utils import call_gpt4v
 import tiktoken
 
+
 class GptTaskCompletionAgent:
     def __init__(self, args):
         self.args = args
 
-        self.sm = '''You are an expert at completing instructions on Webpage screens. 
+        self.sm = """You are an expert at completing instructions on Webpage screens. 
                You will be presented with a screenshot image with some numeric tags.
                If you decide to click somewhere, you should choose the numeric idx that is the closest to the location you want to click.  
                You should decide the action to continue this instruction.
@@ -29,42 +30,57 @@ class GptTaskCompletionAgent:
 
 The output should be in below format:
 {"action": <ACTION>:str, "action_natural_language": <ACTION_IN_NATURAL_LANGUAGE>:str, "idx": <element_idx chosen from the second screen>:int}
-'''
-        self.user_message = '''The instruction is to {}. 
+"""
+        self.user_message = """The instruction is to {}. 
 History actions:
 {}\n\n
 Here is the screen information:
 {}\n\n
 Think about what you need to do with current screen, and output the action in the required format in the end.\n
-Here is the screenshot image: '''
+Here is the screenshot image: """
 
     # @profile
     def act(self, overall_task, acc_tree, som_screenshot_path, action_history=[]):
         # import pdb; pdb.set_trace()
         try:
-            messages = self.create_request(overall_task, acc_tree, som_screenshot_path, action_history)
-            
-            ans_1st_pass, _ = call_gpt4v(self.args, messages)
+            messages = self.create_request(
+                overall_task, acc_tree, som_screenshot_path, action_history
+            )
 
+            ans_1st_pass, _ = call_gpt4v(self.args, messages)
 
         except Exception as e:
             result = None
             ans_1st_pass = ""
             finish_reason = ""
-            usage = {'completion_tokens': 0, 'prompt_tokens': 0, 'total_tokens': 0}
-            logging.info('error in trajectory verifier agent')
+            usage = {"completion_tokens": 0, "prompt_tokens": 0, "total_tokens": 0}
+            logging.info("error in trajectory verifier agent")
             # logging.info(traceback.format_exc())
-        
+
         response = ans_1st_pass
         return response
 
-    def create_request(self, overall_task, acc_tree, som_screenshot_path, action_history):
-
+    def create_request(
+        self, overall_task, acc_tree, som_screenshot_path, action_history
+    ):
         prompt = self.user_message.format(overall_task, action_history, acc_tree)
-        
-        messages = [{"role":"system","content":[{"type": "text", "text": self.sm}]}]
-        messages.append({"role":"user","content":[{"type": "text", "text":prompt}, {"type": "image_url", "image_url": {"url": pil_to_b64(Image.open(som_screenshot_path))}}]})
-        
+
+        messages = [{"role": "system", "content": [{"type": "text", "text": self.sm}]}]
+        messages.append(
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt},
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": pil_to_b64(Image.open(som_screenshot_path))
+                        },
+                    },
+                ],
+            }
+        )
+
         # logging.info(messages)
 
         return messages

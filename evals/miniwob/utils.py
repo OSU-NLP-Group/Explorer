@@ -1,6 +1,6 @@
-'''
+"""
 Credit: https://github.com/web-arena-x/visualwebarena/
-'''
+"""
 
 import base64
 from dataclasses import dataclass
@@ -18,6 +18,7 @@ from multiprocessing import Pool
 from nltk.translate.bleu_score import SmoothingFunction
 import tiktoken
 import re
+
 
 @dataclass
 class DetachedPage:
@@ -95,22 +96,32 @@ class StateInfo(TypedDict):
     observation: dict[str, Observation]
     info: Dict[str, Any]
 
+
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from openai import AzureOpenAI
 import time
+
 
 def call_gpt4v_new(message_text, image_path=None, max_tokens=2048):
     if image_path:
         try:
             with open(image_path, "rb") as img_file:
-                encoded_image = base64.b64encode(img_file.read()).decode('ascii')
-        except: 
+                encoded_image = base64.b64encode(img_file.read()).decode("ascii")
+        except:
             encoded_image = image_path
-    
+
     if image_path:
-        content = [{"type": "image_url","image_url": {"url": f"data:image/jpeg;base64,{encoded_image}"}}, {"type": "text","text": message_text},]
+        content = [
+            {
+                "type": "image_url",
+                "image_url": {"url": f"data:image/jpeg;base64,{encoded_image}"},
+            },
+            {"type": "text", "text": message_text},
+        ]
     else:
-        content = [{"type": "text","text": message_text},]
+        content = [
+            {"type": "text", "text": message_text},
+        ]
 
     max_num_trial = 3
     num_trial = 0
@@ -118,8 +129,10 @@ def call_gpt4v_new(message_text, image_path=None, max_tokens=2048):
 
     endpoint = "https://yadaoai.openai.azure.com/"
     # deployment = "dataoai2-gpt4"
-    deployment = 'gpt-4o'
-    token_provider = get_bearer_token_provider(DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default")
+    deployment = "gpt-4o"
+    token_provider = get_bearer_token_provider(
+        DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default"
+    )
     client = AzureOpenAI(
         azure_endpoint=endpoint,
         azure_ad_token_provider=token_provider,
@@ -128,34 +141,32 @@ def call_gpt4v_new(message_text, image_path=None, max_tokens=2048):
     while num_trial < max_num_trial:
         try:
             response = client.chat.completions.create(
-                            model=deployment,
-                            temperature=0.01,
-                            messages=[
-                                        {
-                                        "role": "system",
-                                        "content": [
-                                            {
-                                            "type": "text",
-                                            "text": "You are an AI assistant that is good at making plans and analyzing screens, and helping people find information."
-                                            },
-                                        ]
-                                        },
-                                        {
-                                        "role": "user",
-                                        "content": content
-                                        }
-                                    ],
-                        )
+                model=deployment,
+                temperature=0.01,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": "You are an AI assistant that is good at making plans and analyzing screens, and helping people find information.",
+                            },
+                        ],
+                    },
+                    {"role": "user", "content": content},
+                ],
+            )
             ans_1st_pass = response.choices[0].message.content
             break
         except:
-            print('retry call gptv', num_trial)
+            print("retry call gptv", num_trial)
             num_trial += 1
-            ans_1st_pass = ''
+            ans_1st_pass = ""
             time.sleep(10)
     if num_trial == max_num_trial:
         call_api_success = False
     return ans_1st_pass, call_api_success
+
 
 def get_reference(self):
     if self.reference is None:
@@ -169,6 +180,7 @@ def get_reference(self):
     else:
         return self.reference
 
+
 def get_bleu_fast(reference, sample_size):
     random.shuffle(reference)
     reference = reference[0:sample_size]
@@ -178,13 +190,13 @@ def get_bleu_fast(reference, sample_size):
 def get_bleu_parallel(ngram=3, reference=None):
     if reference is None:
         reference = get_reference()
-    weight = tuple((1. / ngram for _ in range(ngram)))
+    weight = tuple((1.0 / ngram for _ in range(ngram)))
     pool = Pool(os.cpu_count())
     result = list()
     sentence_num = len(reference)
     for index in range(sentence_num):
         hypothesis = reference[index]
-        other = reference[:index] + reference[index+1:]
+        other = reference[:index] + reference[index + 1 :]
         result.append(pool.apply_async(calc_bleu, args=(other, hypothesis, weight)))
 
     score = 0.0
@@ -196,54 +208,62 @@ def get_bleu_parallel(ngram=3, reference=None):
     pool.join()
     return score / cnt
 
+
 def calc_bleu(reference, hypothesis, weight):
-        return nltk.translate.bleu_score.sentence_bleu(reference, hypothesis, weight,
-                smoothing_function=SmoothingFunction().method1)
+    return nltk.translate.bleu_score.sentence_bleu(
+        reference, hypothesis, weight, smoothing_function=SmoothingFunction().method1
+    )
+
 
 def calc_num_tokens(messages):
     n_tokens = 0
     encoding = tiktoken.encoding_for_model("gpt-4o")
 
     for message in messages:
-        items = message['content']
+        items = message["content"]
 
         for item in items:
-            if item['type'] == 'text':
-                n_tokens += len(encoding.encode(item['text']))
-            elif item['type'] == 'image_url':
+            if item["type"] == "text":
+                n_tokens += len(encoding.encode(item["text"]))
+            elif item["type"] == "image_url":
                 n_tokens += 1100
-        
+
     return n_tokens
+
 
 def get_top_domain(input_string):
     # Split the input string using '/' or ':' as the separator
-    fields = re.split(r'[/:]', input_string)
+    fields = re.split(r"[/:]", input_string)
     if len(fields) < 4:
-        raise ValueError("Input string does not have enough fields to extract the fourth one.")
+        raise ValueError(
+            "Input string does not have enough fields to extract the fourth one."
+        )
     # Extract the fourth field
     fourth_field = fields[3]
     # Define the regex pattern and the replacement pattern for the sed operation
-    pattern = r'([a-zA-Z0-9-]+)\.([a-zA-Z]{2,})$'
-    replacement = r'\1'
+    pattern = r"([a-zA-Z0-9-]+)\.([a-zA-Z]{2,})$"
+    replacement = r"\1"
     # Perform the substitution using re.sub
     transformed_string = re.sub(pattern, replacement, fourth_field)
     return transformed_string
+
 
 from typing import TypedDict, List
 from enum import IntEnum
 
 
 class ElementNode(TypedDict):
-    nodeId: int                 # Element ID
-    childIds: List[int]         # List of child element IDs
-    siblingId: int              # Sibling element ranking
-    twinId: int                 # Same tag element ranking
-    tagName: str                # Element
-    attributes: dict            # Element attributes
-    text: str                   # Text attribute
-    parentId: int               # Parent element
-    htmlContents: str           # All information of the element
-    depth: int                  # Depth
+    nodeId: int  # Element ID
+    childIds: List[int]  # List of child element IDs
+    siblingId: int  # Sibling element ranking
+    twinId: int  # Same tag element ranking
+    tagName: str  # Element
+    attributes: dict  # Element attributes
+    text: str  # Text attribute
+    parentId: int  # Parent element
+    htmlContents: str  # All information of the element
+    depth: int  # Depth
+
 
 TagNameList = [
     "button",
@@ -271,65 +291,44 @@ TagNameList = [
     "filter-chip",
     "sup",
     "select-label",
-    "optgroup"
+    "optgroup",
 ]
 
-MapTagNameList = [
-    "span",
-    "h1",
-    "h2",
-    "h3",
-    "h4",
-    "h5",
-    "h6",
-    "div",
-    "li",
-    "ul",
-    "p"
-]
+MapTagNameList = ["span", "h1", "h2", "h3", "h4", "h5", "h6", "div", "li", "ul", "p"]
 
 DelTagNameList = [
-    "script",           # del
-    "noscript",         # del
-    "style",            # del
-    "link",             # del
-    "meta",             # del
+    "script",  # del
+    "noscript",  # del
+    "style",  # del
+    "link",  # del
+    "meta",  # del
 ]
 
 
-ConditionTagNameList = [
-    'span',
-    'td',
-    'th',
-    'tr',
-    'li',
-    'div',
-    'label',
-    'filter-chip'
-]
+ConditionTagNameList = ["span", "td", "th", "tr", "li", "div", "label", "filter-chip"]
 
 
-TypeList = [
-    "submit"
-]
+TypeList = ["submit"]
 
 
 def stringfy_selector(string: str):
-    special_chars = '#.>+~[]():*^$|=@\''
+    special_chars = "#.>+~[]():*^$|=@'"
     string = string.replace("\t", " ").replace("\n", " ").lstrip().rstrip()
-    string = ' '.join(string.split())
+    string = " ".join(string.split())
     for char in special_chars:
-        string = string.replace(char, '\\' + char)
-    string = '.'.join(string.split(' '))
+        string = string.replace(char, "\\" + char)
+    string = ".".join(string.split(" "))
     if string[0].isdigit():
         string = f"\\{'{:X}'.format(ord(string[0]))}" + " " + string[1:]
     return string
 
+
 def stringfy_value(string):
-    special_chars = '#.>+~[]():*^$|=@\''
+    special_chars = "#.>+~[]():*^$|=@'"
     for char in special_chars:
-        string = string.replace(char, '\\' + char)
+        string = string.replace(char, "\\" + char)
     return rf"{string}"
+
 
 __all__ = [
     "ElementNode",
@@ -338,5 +337,5 @@ __all__ = [
     "ConditionTagNameList",
     "TypeList",
     "stringfy_selector",
-    "stringfy_value"
+    "stringfy_value",
 ]
