@@ -1,5 +1,13 @@
 # Explorer
 
+<p align="center">
+  <a href="https://aclanthology.org/events/acl-2025/"><img src="https://img.shields.io/badge/ACL_Findings-2025-purple"></a>
+  <a href="https://aclanthology.org/2025.findings-acl.326.pdf"><img src="http://img.shields.io/badge/Paper-PDF-red.svg"></a>
+  <a href="https://github.com/OSU-NLP-Group/Explorer/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/MIT-License-blue">
+  </a>
+</p>
+
 This is the official codebase for **Explorer: Scaling Exploration-driven Web Trajectory Synthesis for Multimodal Web Agents** [**ACL 2025 (Findings)**]. This project is a collaboration between The Ohio State University and Microsoft Research.
 
 - [🏠 Website](https://osu-nlp-group.github.io/Explorer/)
