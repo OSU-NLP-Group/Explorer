@@ -3,7 +3,7 @@
 This is the official codebase for **Explorer: Scaling Exploration-driven Web Trajectory Synthesis for Multimodal Web Agents** [**ACL 2025 (Findings)**]. This project is a collaboration between The Ohio State University and Microsoft Research.
 
 - [🏠Website](https://osu-nlp-group.github.io/Explorer/)
-- [📖Paper](https://arxiv.org/pdf/2502.11357)
+- [📖Paper](https://aclanthology.org/2025.findings-acl.326.pdf)
 
 Stay tuned for additional code releases and modules for this project.
 
@@ -118,10 +118,27 @@ bash evals/miniwob/eval-explorer.sh
 If you find this work useful, please consider starring our repo and citing our paper: 
 
 ```
-@article{pahuja2025explorer,
-  title={Explorer: Scaling Exploration-driven Web Trajectory Synthesis for Multimodal Web Agents},
-  author={Pahuja, Vardaan and Lu, Yadong and Rosset, Corby and Gou, Boyu and Mitra, Arindam and Whitehead, Spencer and Su, Yu and Awadallah, Ahmed},
-  journal={arXiv preprint arXiv:2502.11357},
-  year={2025}
+@inproceedings{pahuja-etal-2025-explorer,
+    title = "Explorer: Scaling Exploration-driven Web Trajectory Synthesis for Multimodal Web Agents",
+    author = "Pahuja, Vardaan  and
+      Lu, Yadong  and
+      Rosset, Corby  and
+      Gou, Boyu  and
+      Mitra, Arindam  and
+      Whitehead, Spencer  and
+      Su, Yu  and
+      Awadallah, Ahmed Hassan",
+    editor = "Che, Wanxiang  and
+      Nabende, Joyce  and
+      Shutova, Ekaterina  and
+      Pilehvar, Mohammad Taher",
+    booktitle = "Findings of the Association for Computational Linguistics: ACL 2025",
+    month = jul,
+    year = "2025",
+    address = "Vienna, Austria",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.findings-acl.326/",
+    pages = "6300--6323",
+    ISBN = "979-8-89176-256-5",
 }
 ```
