@@ -7,7 +7,7 @@ This is the official codebase for **Explorer: Scaling Exploration-driven Web Tra
 
 Stay tuned for additional code releases and modules for this project.
 
-## Training
+## 📦 Training
 
 ### Mind2Web-Live
 ```
