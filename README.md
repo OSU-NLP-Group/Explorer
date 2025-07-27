@@ -48,7 +48,7 @@ export OPENAI_API_KEY=xxxxxxxxxxxx
 
 **Step 3:** Run the evaluation script:
 ```
-python -m evals.mind2web_live_eval.evaluate_model    --index -1     --planning_text_model {qwen2-vl-7b|phi-3.5v}     --toml-path evals/mind2web_live_eval/configs/setting_qwen7b_40k_sample_10epoch_sync_1280_gs_filter.toml     --use-flash-attention --ckpt-path CKPT_PATH --temp 0.01 --log-dir LOG_DIR --viewport-width 1280
+python -m evals.mind2web_live_eval.evaluate_model    --index -1     --planning_text_model {qwen2-vl-7b|phi-3.5v}     --toml-path evals/mind2web_live_eval/configs/setting.toml     --use-flash-attention --ckpt-path CKPT_PATH --temp 0.01 --log-dir LOG_DIR --viewport-width 1280
 ```
 
 ### Multimodal-Mind2Web
