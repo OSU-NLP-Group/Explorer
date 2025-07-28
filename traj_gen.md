@@ -38,6 +38,10 @@ Procedure Explorer(init_url):
       If captcha_response = "yes":
         Return []
 
+    // is_valid denotes whether the proposal/refinement execution was successful.
+    // The failure could occur due to API access issues, incorrect response format,
+    // or failure to execute the action.
+
     If step = 0:
       task_proposal, action_nl, action_grounded, is_valid⟩ ← PROPOSAL_AGENT.act(state.a11y_tree, state.image_obs)
     Else:
