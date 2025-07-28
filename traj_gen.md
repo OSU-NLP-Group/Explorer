@@ -2,6 +2,8 @@
 
 Below is the pseudocode for Explorer's web trajectory generation pipeline. The relevant prompts for all agents in the multi-agent pipeline are given in the paper Appendix.
 
+<pre>
+```text
 Procedure Explorer(init_url):
 
   Initialize task_trajectory_data with:
@@ -73,3 +75,5 @@ Procedure Explorer(init_url):
     - verifier_agent_response ← verifier_response
 
   Return task_trajectory_data
+```
+</pre>
