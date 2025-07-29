@@ -15,18 +15,44 @@ This is the official codebase for **Explorer: Scaling Exploration-driven Web Tra
 
 Stay tuned for additional code releases and modules for this project.
 
+## 🚀 Trajectory Synthesis
+```
+python -m traj_gen.web_random_walker_fusion_flow \
+  --model-dir MODEL_DIR \
+  --init-url INIT_URL \
+  --max-steps MAX_STEPS
+```
+
 ## 📦 Training
 
 ### Mind2Web-Live
 ```
 cd train/
-torchrun --nproc_per_node=4 train_qwen2vl.py --use_flash_attention --bf16 --train_dir <PATH_TO_SAVED_HUGGINGFACE_TRAJ_DATASET> --train_data_dir <PATH_ROOT_TO_RAW_TRAJS> --output_dir <OUTPUT_DIR> --num_train_epochs 10 --batch_size 64 --use-google-search
+torchrun --nproc_per_node=4 train_qwen2vl.py \
+  --use_flash_attention --bf16 \
+  --train_dir <PATH_TO_SAVED_HUGGINGFACE_TRAJ_DATASET> \
+  --train_data_dir <PATH_ROOT_TO_RAW_TRAJS> \
+  --output_dir <OUTPUT_DIR> \
+  --num_train_epochs 10 \
+  --batch_size 64 \
+  --use-google-search
 ```
 
 ### Multimodal-Mind2Web
 ```
 cd train/
-torchrun --nproc_per_node=4 train_qwen2vl.py --use_flash_attention --bf16 --train_dir <PATH_TO_SAVED_HUGGINGFACE_TRAJ_DATASET> --train_dir_order <EMPTY_DIR_TO_SAVE_ORDERED_HUGGINGFACE_TRAJ_DATASET> --train_data_dir <PATH_ROOT_TO_RAW_TRAJS> --output_dir <OUTPUT_DIR> --num_train_epochs 2 --batch_size 64 --model_name_or_path Qwen/Qwen2-VL-7B-Instruct --use-nogoto-gs-format --order_all_steps --learning_rate 1e-5
+torchrun --nproc_per_node=4 train_qwen2vl.py \
+  --use_flash_attention --bf16 \
+  --train_dir <PATH_TO_SAVED_HUGGINGFACE_TRAJ_DATASET> \
+  --train_dir_order <EMPTY_DIR_TO_SAVE_ORDERED_HUGGINGFACE_TRAJ_DATASET> \
+  --train_data_dir <PATH_ROOT_TO_RAW_TRAJS> \
+  --output_dir <OUTPUT_DIR> \
+  --num_train_epochs 2 \
+  --batch_size 64 \
+  --model_name_or_path Qwen/Qwen2-VL-7B-Instruct \
+  --use-nogoto-gs-format \
+  --order_all_steps \
+  --learning_rate 1e-5
 ```
 
 ## 🧪 Evaluation

@@ -1,0 +1,17 @@
+beartype==0.18.5
+nltk
+tiktoken
+pillow
+numpy
+azure-identity
+openai
+gymnasium
+playwright
+matplotlib
+pandas==2.2.2
+aiohttp
+bs4
+yappi
+langdetect
+xlsxwriter
+lxml
