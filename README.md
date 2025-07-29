@@ -17,7 +17,11 @@ Stay tuned for additional code releases and modules for this project.
 
 ## 🚀 Trajectory Synthesis
 ```
-python -m traj_gen.web_random_walker_fusion_flow \
+Xvfb :99 -screen 0 1920x1280x16 &
+export DISPLAY=:99
+export OPENAI_API_KEY=xxxxxxxxxxxx
+
+python -m traj_gen.main \
   --model-dir MODEL_DIR \
   --init-url INIT_URL \
   --max-steps MAX_STEPS

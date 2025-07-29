@@ -30,7 +30,7 @@ run_process() {
   local display=":$display_num"
 
   # Start an Xvfb server on the specified display
-  Xvfb $display -screen 0 1280x1080x24 &  # Start Xvfb in the background
+  Xvfb $display -screen 0 1920x1280x16 &  # Start Xvfb in the background
   local xvfb_pid=$!
 
   export DISPLAY=$display
