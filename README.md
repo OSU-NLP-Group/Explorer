@@ -15,17 +15,6 @@ This is the official codebase for **Explorer: Scaling Exploration-driven Web Tra
 
 Stay tuned for additional code releases and modules for this project.
 
-## 🚀 Trajectory Synthesis
-```
-Xvfb :99 -screen 0 1920x1280x16 &
-export DISPLAY=:99
-export OPENAI_API_KEY=xxxxxxxxxxxx
-
-python -m traj_gen.main \
-  --model-dir MODEL_DIR \
-  --init-url INIT_URL \
-  --max-steps MAX_STEPS
-```
 
 ## 📦 Training
 
@@ -149,6 +138,18 @@ pip install -r evals/miniwob/requirements.txt
 
 ```
 bash evals/miniwob/eval-explorer.sh
+```
+
+## 🚀 Trajectory Synthesis
+```
+Xvfb :99 -screen 0 1920x1280x16 &
+export DISPLAY=:99
+export OPENAI_API_KEY=xxxxxxxxxxxx
+
+python -m traj_gen.main \
+  --model-dir MODEL_DIR \
+  --init-url INIT_URL \
+  --max-steps MAX_STEPS
 ```
 
 ## Citation
