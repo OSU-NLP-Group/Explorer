@@ -13,9 +13,6 @@ This is the official codebase for **Explorer: Scaling Exploration-driven Web Tra
 - [🏠 Website](https://osu-nlp-group.github.io/Explorer/)
 - [📖 Paper](https://aclanthology.org/2025.findings-acl.326.pdf)
 
-Stay tuned for additional code releases and modules for this project.
-
-
 ## 📦 Training
 
 ### Mind2Web-Live
